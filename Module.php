@@ -11,6 +11,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 use Generic\AbstractModule;
 use Omeka\Api\Representation\AbstractRepresentation;
 use Omeka\Api\Representation\AssetRepresentation;
+use Omeka\Api\Representation\SitePageRepresentation;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\View\Renderer\PhpRenderer;
@@ -160,6 +161,10 @@ class Module extends AbstractModule
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
 
         $site = $view->site;
+        if ($site && $value = $site->title()) {
+            $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
+            $headMeta->appendProperty('og:title', $value);
+        }
         if ($site && $value = $site->summary()) {
             $headMeta->appendProperty('og:description', $value);
         }
@@ -191,31 +196,36 @@ class Module extends AbstractModule
         $page = $view->page;
         $headMeta->appendProperty('og:title', $page->title());
 
+        $derivative = $siteSettings->get('metatags_media_derivative', 'large');
         $plugins = $view->getHelperPluginManager();
         if (!$plugins->has('pageMetadata')) {
+            if ($derivative !== 'none'
+                && $value = $this->mainImage($page)
+            ) {
+                $headMeta->appendProperty('og:image', $this->thumbnailUrl($value, $derivative));
+                // TODO Add size and media type of the image.
+            }
             return;
         }
 
         $pageMetadata = $plugins->get('pageMetadata');
-        if ($value = $pageMetadata('summary', $page)) {
-            $headMeta->appendProperty('og:description', $value);
-        }
         if ($summary = $pageMetadata('summary', $page)) {
             $headMeta->appendProperty('og:description', $summary);
         }
-        $derivative = $siteSettings->get('metatags_media_derivative', 'large');
         if ($derivative !== 'none'
             && $value = $pageMetadata('main_image', $page)
         ) {
             $headMeta->appendProperty('og:image', $this->thumbnailUrl($value, $derivative));
             // TODO Add size and media type of the image.
         }
-
         // Note: the head title (site title) is already added by Omeka.
         if ($summary) {
-            $headMeta->appendName('description', $value);
+            $headMeta->appendName('description', $summary);
         }
         if ($value = $pageMetadata('tags')) {
+            if (is_array($value)) {
+                $value = implode(', ', array_unique(array_filter(array_map('trim', $value), 'strlen')));
+            }
             $headMeta->appendName('keywords', $value);
         }
         if ($value = $pageMetadata('credits')) {
@@ -238,6 +248,10 @@ class Module extends AbstractModule
         $this->commonMeta($view, 'website');
 
         $site = $view->site;
+        if ($site && $value = $site->title()) {
+            $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
+            $headMeta->appendProperty('og:title', $value);
+        }
         if ($site && $value = $site->summary()) {
             $headMeta->appendProperty('og:description', $value);
         }
@@ -252,7 +266,8 @@ class Module extends AbstractModule
         $siteSettings = $this->getServiceLocator()->get('Omeka\Settings\Site');
         $headMeta = $view->headMeta();
 
-        // The prefix cannot be added to <head>.
+        // The prefix cannot be added to <head>. Anyway, many sites use html,
+        // and some use the xml standard way (xmlns:og).
         $view->htmlElement('html')->appendAttribute('prefix', 'og: https://ogp.me/ns#');
 
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
@@ -286,6 +301,11 @@ class Module extends AbstractModule
         }
     }
 
+    /**
+     * @param AbstractRepresentation $representation
+     * @param string $type
+     * @return string|null
+     */
     protected function thumbnailUrl(AbstractRepresentation $representation, $type = 'large')
     {
         if ($representation instanceof AssetRepresentation) {
@@ -306,5 +326,53 @@ class Module extends AbstractModule
         return strpos($url, 'http') === 0
             ? $url
             : null;
+    }
+
+    /**
+     * @see \BlockPlus\View\Helper\PageMetadata
+     *
+     * @param SitePageRepresentation $page
+     * @return \Omeka\Api\Representation\AssetRepresentation|\Omeka\Api\Representation\MediaRepresentation|null
+     */
+    protected function mainImage(SitePageRepresentation $page)
+    {
+        $api = $this->getServiceLocator()->get('Omeka\ApiManager');
+        foreach ($page->blocks() as $block) {
+            $layout = $block->layout();
+            if ($layout === 'pageMetadata') {
+                $asset = $block->dataValue('cover');
+                if ($asset) {
+                    try {
+                        return $api->read('assets', ['id' => $asset])->getContent();
+                    } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    }
+                }
+            } elseif ($layout === 'assets') {
+                foreach ($block->dataValue('assets', []) as $asset) {
+                    try {
+                        return $api->read('assets', ['id' => $asset['asset']])->getContent();
+                    } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    }
+                }
+                continue;
+            }
+            foreach ($block->attachments() as $attachment) {
+                $media = $attachment->media();
+                if ($media && ($media->hasThumbnails() || $media->thumbnail())) {
+                    return $media;
+                }
+                $item = $attachment->item();
+                if ($item) {
+                    if ($thumbnail = $item->thumbnail()) {
+                        return $thumbnail;
+                    }
+                    $media = $item->primaryMedia();
+                    if ($media && ($media->hasThumbnails() || $media->thumbnail())) {
+                        return $media;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
