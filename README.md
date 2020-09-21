@@ -22,7 +22,7 @@ uncompress it in the `modules` directory.
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `MetaTags`:
+the module to `MetaTags`.
 
 
 Usage

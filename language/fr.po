@@ -1,0 +1,89 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-21 00:00+0000\n"
+"PO-Revision-Date: 2020-09-21 00:00+0000\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.1\n"
+
+#: src/Generic/AbstractModule.php:601
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr "Ce module requiert le module \"%s\"."
+
+#: src/Generic/AbstractModule.php:621
+#, php-format
+msgid "This module requires modules \"%s\"."
+msgstr "Ce module requiert les modules \"%s\"."
+
+#: src/Generic/AbstractModule.php:689
+#, php-format
+msgid ""
+"The module \"%s\" was automatically deactivated because the dependencies are "
+"unavailable."
+msgstr ""
+"Le module %s\" a été automatiquement désactivé car ses dépendances ne sont "
+"plus disponibles."
+
+#: src/Form/SiteSettingsFieldset.php:12
+msgid "Meta Tags"
+msgstr "Méta tags"
+
+#: src/Form/SiteSettingsFieldset.php:21
+msgid "Append Open Graph and Twitter tags"
+msgstr "Ajouter les éléments méta Open Graph et Twitter"
+
+#: src/Form/SiteSettingsFieldset.php:31
+msgid "Open Graph type"
+msgstr "Type Open Graph"
+
+#: src/Form/SiteSettingsFieldset.php:33
+msgid "Simple og:type"
+msgstr "Simple og:type"
+
+#: src/Form/SiteSettingsFieldset.php:34
+msgid "Resource class"
+msgstr "Classe de ressource"
+
+#: src/Form/SiteSettingsFieldset.php:46
+msgid "Twitter domain"
+msgstr "Domaine Twitter"
+
+#: src/Form/SiteSettingsFieldset.php:57
+msgid "Twitter site"
+msgstr "Site Twitter"
+
+#: src/Form/SiteSettingsFieldset.php:68
+msgid "Twitter creator account"
+msgstr "Compte auteur Twitter"
+
+#: src/Form/SiteSettingsFieldset.php:79
+msgid "Derivative type"
+msgstr "Fchiers dérivés"
+
+#: src/Form/SiteSettingsFieldset.php:80
+msgid "When a thumbnail exists, the size is not taken in account."
+msgstr "Quand une vignette est définie, la taille n’est pas prise en compte."
+
+#: src/Form/SiteSettingsFieldset.php:82
+msgid "No media"
+msgstr "Pas de média"
+
+#: src/Form/SiteSettingsFieldset.php:84
+msgid "Large"
+msgstr "Large"
+
+#: src/Form/SiteSettingsFieldset.php:86
+msgid "Square"
+msgstr "Carré"
