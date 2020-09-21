@@ -160,6 +160,10 @@ class Module extends AbstractModule
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
 
         $site = $view->site;
+        if ($site && $value = $site->title()) {
+            $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
+            $headMeta->appendProperty('og:title', $value);
+        }
         if ($site && $value = $site->summary()) {
             $headMeta->appendProperty('og:description', $value);
         }
@@ -238,6 +242,10 @@ class Module extends AbstractModule
         $this->commonMeta($view, 'website');
 
         $site = $view->site;
+        if ($site && $value = $site->title()) {
+            $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
+            $headMeta->appendProperty('og:title', $value);
+        }
         if ($site && $value = $site->summary()) {
             $headMeta->appendProperty('og:description', $value);
         }
