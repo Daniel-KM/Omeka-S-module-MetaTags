@@ -105,8 +105,8 @@ class Module extends AbstractModule
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
 
         $headMeta->appendProperty('og:title', $resource->displayTitle());
-        if ($value = $resource->displayDescription()) {
-            $headMeta->appendProperty('og:description', $value);
+        if ($summary = $resource->displayDescription()) {
+            $headMeta->appendProperty('og:description', $summary);
         }
         if ($derivative !== 'none'
             && $value = $this->thumbnailUrl($resource, $derivative)
@@ -114,6 +114,28 @@ class Module extends AbstractModule
             $headMeta->appendProperty('og:image', $value);
             // TODO Add size and media type of the image.
         }
+
+        if ($summary) {
+            $headMeta->appendName('description', $summary);
+        }
+        /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
+        $values = $resource->value('dcterms:subject', ['all' => true]);
+        if ($values) {
+            $values = implode(', ', array_unique(array_filter(array_map(function ($v) {
+                return $v->valueResource() ? $v->valueResource()->displayTitle() : $v->value();
+            }, $values), 'strlen')));
+            if ($values) {
+                $headMeta->appendName('keywords', $values);
+            }
+        }
+        /* // TODO Who is the creator? Owner of resource or author of document?
+        if ($value = $resource->value('dcterms:creator')) {
+            $headMeta->appendName('author', (string) $value);
+        }
+        if ($value = $resource->value('dcterms:rights')) {
+            $headMeta->appendName('copyright', (string) $value);
+        }
+        */
     }
 
     public function handleSiteResources(Event $event)
@@ -184,6 +206,7 @@ class Module extends AbstractModule
             // TODO Add size and media type of the image.
         }
 
+        // Note: the head title (site title) is already added by Omeka.
         if ($summary) {
             $headMeta->appendName('description', $value);
         }
