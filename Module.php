@@ -9,11 +9,11 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
-use Laminas\EventManager\Event;
-use Laminas\EventManager\SharedEventManagerInterface;
-use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractRepresentation;
 use Omeka\Api\Representation\AssetRepresentation;
+use Zend\EventManager\Event;
+use Zend\EventManager\SharedEventManagerInterface;
+use Zend\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -82,7 +82,7 @@ class Module extends AbstractModule
             return;
         }
 
-        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        /** @var \Zend\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 
@@ -151,7 +151,7 @@ class Module extends AbstractModule
             return;
         }
 
-        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        /** @var \Zend\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 
@@ -181,7 +181,7 @@ class Module extends AbstractModule
             return;
         }
 
-        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        /** @var \Zend\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 
@@ -231,7 +231,7 @@ class Module extends AbstractModule
             return;
         }
 
-        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        /** @var \Zend\View\Renderer\PhpRenderer $view */
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 

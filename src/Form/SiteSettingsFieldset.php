@@ -1,8 +1,8 @@
 <?php
 namespace MetaTags\Form;
 
-use Laminas\Form\Element;
-use Laminas\Form\Fieldset;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
 
 class SiteSettingsFieldset extends Fieldset
 {

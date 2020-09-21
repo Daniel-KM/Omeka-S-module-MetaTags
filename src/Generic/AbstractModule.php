@@ -28,10 +28,10 @@
 
 namespace Generic;
 
-use Laminas\EventManager\Event;
-use Laminas\Mvc\Controller\AbstractController;
-use Laminas\ServiceManager\ServiceLocatorInterface;
-use Laminas\View\Renderer\PhpRenderer;
+use Zend\EventManager\Event;
+use Zend\Mvc\Controller\AbstractController;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\View\Renderer\PhpRenderer;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Settings\SettingsInterface;
 use Omeka\Stdlib\Message;
@@ -216,7 +216,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         /** @var \Omeka\Mvc\Status $status */
         $status = $services->get('Omeka\Status');
         if ($status->isAdminRequest()) {
-            /** @var \Laminas\Router\Http\RouteMatch $routeMatch */
+            /** @var \Zend\Router\Http\RouteMatch $routeMatch */
             $routeMatch = $status->getRouteMatch();
             if (!in_array($routeMatch->getParam('controller'), ['Omeka\Controller\Admin\User', 'user'])) {
                 return;
@@ -403,7 +403,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
      *
      * @param Event $event
      * @param string $settingsType
-     * @return \Laminas\Form\Form|null
+     * @return \Zend\Form\Form|null
      */
     protected function handleAnySettings(Event $event, $settingsType)
     {
@@ -443,7 +443,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
                 $id = $site()->id();
                 break;
             case 'user_settings':
-                /** @var \Laminas\Router\Http\RouteMatch $routeMatch */
+                /** @var \Zend\Router\Http\RouteMatch $routeMatch */
                 $routeMatch = $services->get('Application')->getMvcEvent()->getRouteMatch();
                 $id = $routeMatch->getParam('id');
                 break;
@@ -469,7 +469,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
 
         $space = strtolower(static::NAMESPACE);
 
-        /** @var \Laminas\Form\Form $form */
+        /** @var \Zend\Form\Form $form */
         $fieldset = $services->get('FormElementManager')->get($settingFieldsets[$settingsType]);
         $fieldset->setName($space);
         $form = $event->getTarget();
