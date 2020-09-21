@@ -25,6 +25,17 @@ class SiteSettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'metatags_twitter_domain',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Twitter domain', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metatags_twitter_domain',
+                    'placeholder' => 'My site',
+                ],
+            ])
+            ->add([
                 'name' => 'metatags_twitter_site',
                 'type' => Element\Text::class,
                 'options' => [

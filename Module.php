@@ -204,6 +204,9 @@ class Module extends AbstractModule
         $headMeta->appendProperty('og:url', $view->serverUrl(true));
 
         $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary' : 'summary_large_image');
+        if ($value = $siteSettings->get('metatags_twitter_domain', true)) {
+            $headMeta->appendName('twitter:domain', $value);
+        }
         if ($value = $siteSettings->get('metatags_twitter_site', true)) {
             $headMeta->appendName('twitter:site', $value);
         }
