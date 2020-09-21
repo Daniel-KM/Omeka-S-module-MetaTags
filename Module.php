@@ -112,6 +112,7 @@ class Module extends AbstractModule
             && $value = $this->thumbnailUrl($resource, $derivative)
         ) {
             $headMeta->appendProperty('og:image', $value);
+            // TODO Add size and media type of the image.
         }
     }
 
@@ -140,6 +141,7 @@ class Module extends AbstractModule
             $resource = reset($resources);
             if ($resource && $value = $this->thumbnailUrl($resource, $derivative)) {
                 $headMeta->appendProperty('og:image', $value);
+                // TODO Add size and media type of the image.
             }
         }
     }
@@ -161,6 +163,36 @@ class Module extends AbstractModule
         /** @var \Omeka\Api\Representation\SitePageRepresentation $page */
         $page = $view->page;
         $headMeta->appendProperty('og:title', $page->title());
+
+        $plugins = $view->getHelperPluginManager();
+        if (!$plugins->has('pageMetadata')) {
+            return;
+        }
+
+        $pageMetadata = $plugins->get('pageMetadata');
+        if ($value = $pageMetadata('summary', $page)) {
+            $headMeta->appendProperty('og:description', $value);
+        }
+        if ($summary = $pageMetadata('summary', $page)) {
+            $headMeta->appendProperty('og:description', $summary);
+        }
+        $derivative = $siteSettings->get('metatags_media_derivative', 'large');
+        if ($derivative !== 'none'
+            && $value = $pageMetadata('main_image', $page)
+        ) {
+            $headMeta->appendProperty('og:image', $this->thumbnailUrl($value, $derivative));
+            // TODO Add size and media type of the image.
+        }
+
+        if ($summary) {
+            $headMeta->appendName('description', $value);
+        }
+        if ($value = $pageMetadata('tags')) {
+            $headMeta->appendName('keywords', $value);
+        }
+        if ($value = $pageMetadata('credits')) {
+            $headMeta->appendName('author', $value);
+        }
     }
 
     public function handleSitePages(Event $event)
