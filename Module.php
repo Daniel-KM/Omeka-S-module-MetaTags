@@ -89,15 +89,20 @@ class Module extends AbstractModule
         /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
         $resource = $view->resource;
 
-        // TODO Use resource class or media type for og type?
-        $primary = $resource->primaryMedia();
-        if ($primary) {
-            $mediaType = $primary->mediaType();
-            $main = strtok($mediaType, '/');
-            $map = ['audio' => 'audio', 'video' => 'video', 'image' => 'image'];
-            $ogType = isset($map[$main]) ? $map[$main] : 'article';
-        } else {
-            $ogType = 'article';
+        $ogTypeMode = $siteSettings->get('metatags_og_type', 'og_type');
+        if ($ogTypeMode === 'rdf_class') {
+            $ogType = $resource->resourceClass();
+        }
+        if (empty($ogType)) {
+            $primary = $resource->primaryMedia();
+            if ($primary) {
+                $mediaType = $primary->mediaType();
+                $main = strtok($mediaType, '/');
+                $map = ['audio' => 'audio', 'video' => 'video', 'image' => 'image'];
+                $ogType = isset($map[$main]) ? $map[$main] : 'article';
+            } else {
+                $ogType = 'article';
+            }
         }
 
         $this->commonMeta($view, $ogType);
@@ -238,6 +243,10 @@ class Module extends AbstractModule
         }
     }
 
+    /**
+     * @param PhpRenderer $view
+     * @param string|\Omeka\Api\Representation\ResourceClassRepresentation $ogType
+     */
     protected function commonMeta(PhpRenderer $view, $ogType = 'website')
     {
         $siteSettings = $this->getServiceLocator()->get('Omeka\Settings\Site');
@@ -247,7 +256,14 @@ class Module extends AbstractModule
         $view->htmlElement('html')->appendAttribute('prefix', 'og: https://ogp.me/ns#');
 
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
-        $headMeta->appendProperty('og:type', $ogType);
+        if (is_object($ogType)) {
+            $vocabulary = $ogType->vocabulary();
+            $view->htmlElement('html')
+                ->appendAttribute('prefix', $vocabulary->prefix() . ': ' . $vocabulary->namespaceUri());
+            $headMeta->appendProperty('og:type', $ogType->term());
+        } else {
+            $headMeta->appendProperty('og:type', $ogType);
+        }
 
         $site = $view->site;
         if ($site) {

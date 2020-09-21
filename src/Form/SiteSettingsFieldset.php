@@ -25,6 +25,21 @@ class SiteSettingsFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'metatags_og_type',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Open Graph type', // @translate
+                    'value_options' => [
+                        'og_type' => 'Simple og:type', // @translate
+                        'rdf_class' => 'Resource class', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'metatags_og_type',
+                    'value' => 'og_type',
+                ],
+            ])
+            ->add([
                 'name' => 'metatags_twitter_domain',
                 'type' => Element\Text::class,
                 'options' => [

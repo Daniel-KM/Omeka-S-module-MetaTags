@@ -47,7 +47,7 @@ not duplicated with the OpenGraph ones.
 TODO
 ----
 
-- [ ] Clarify the open graph type: use og type or the resource class?
+- [x] Clarify the open graph type: use og type or the resource class?
 - [ ] Clarify who is the author of the document: the owner of the resource or the creator? Add a setting. The same for the rights.
 - [ ] Add data about media type and size of the media.
 
