@@ -336,7 +336,26 @@ class Module extends AbstractModule
      */
     protected function mainImage(SitePageRepresentation $page)
     {
+        $api = $this->getServiceLocator()->get('Omeka\ApiManager');
         foreach ($page->blocks() as $block) {
+            $layout = $block->layout();
+            if ($layout === 'pageMetadata') {
+                $asset = $block->dataValue('cover');
+                if ($asset) {
+                    try {
+                        return $api->read('assets', ['id' => $asset])->getContent();
+                    } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    }
+                }
+            } elseif ($layout === 'assets') {
+                foreach ($block->dataValue('assets', []) as $asset) {
+                    try {
+                        return $api->read('assets', ['id' => $asset['asset']])->getContent();
+                    } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                    }
+                }
+                continue;
+            }
             foreach ($block->attachments() as $attachment) {
                 $media = $attachment->media();
                 if ($media && ($media->hasThumbnails() || $media->thumbnail())) {
