@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MetaTags;
 
@@ -20,7 +20,7 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
         $sharedEventManager->attach(
             'Omeka\Controller\Site\Item',
@@ -75,7 +75,7 @@ class Module extends AbstractModule
         );
     }
 
-    public function handleSiteResource(Event $event)
+    public function handleSiteResource(Event $event): void
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
@@ -144,7 +144,7 @@ class Module extends AbstractModule
         */
     }
 
-    public function handleSiteResources(Event $event)
+    public function handleSiteResources(Event $event): void
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
@@ -178,7 +178,7 @@ class Module extends AbstractModule
         }
     }
 
-    public function handleSitePage(Event $event)
+    public function handleSitePage(Event $event): void
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
@@ -233,7 +233,7 @@ class Module extends AbstractModule
         }
     }
 
-    public function handleSitePages(Event $event)
+    public function handleSitePages(Event $event): void
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
@@ -261,7 +261,7 @@ class Module extends AbstractModule
      * @param PhpRenderer $view
      * @param string|\Omeka\Api\Representation\ResourceClassRepresentation $ogType
      */
-    protected function commonMeta(PhpRenderer $view, $ogType = 'website')
+    protected function commonMeta(PhpRenderer $view, $ogType = 'website'): void
     {
         $siteSettings = $this->getServiceLocator()->get('Omeka\Settings\Site');
         $headMeta = $view->headMeta();
