@@ -1,6 +1,9 @@
 Meta Tags (module for Omeka S)
 ==============================
 
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better.__
+
 [Meta Tags] is a module for [Omeka S] that adds [Open Graph] and [Twitter cards]
 tags inside the header of all pages, item sets and items, so the title, the
 description and the image or media are displayed automatically in the social
@@ -107,4 +110,5 @@ This module was built for the digital library of the cooperative heritage [Fonda
 [OSI]: http://opensource.org
 [MIT]: http://http://opensource.org/licenses/MIT
 [Fondation Maison de Salins]: https://collections.maison-salins.fr
+[GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
