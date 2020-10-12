@@ -103,7 +103,7 @@ This module was built for the digital library of the cooperative heritage [Fonda
 [Block Plus]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus
 [MetaTags.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags/-/releases
 [recommendations]: https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/getting-started#opengraph
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
