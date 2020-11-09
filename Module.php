@@ -98,7 +98,7 @@ class Module extends AbstractModule
             $primary = $resource->primaryMedia();
             if ($primary) {
                 $mediaType = $primary->mediaType();
-                $main = strtok($mediaType, '/');
+                $main = strtok((string) $mediaType, '/');
                 $map = ['audio' => 'audio', 'video' => 'video', 'image' => 'image'];
                 $ogType = isset($map[$main]) ? $map[$main] : 'article';
             } else {
