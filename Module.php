@@ -100,7 +100,7 @@ class Module extends AbstractModule
                 $mediaType = $primary->mediaType();
                 $main = strtok((string) $mediaType, '/');
                 $map = ['audio' => 'audio', 'video' => 'video', 'image' => 'image'];
-                $ogType = isset($map[$main]) ? $map[$main] : 'article';
+                $ogType = $map[$main] ?? 'article';
             } else {
                 $ogType = 'article';
             }
@@ -110,20 +110,24 @@ class Module extends AbstractModule
 
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
 
-        $headMeta->appendProperty('og:title', $resource->displayTitle());
+        if ($title = $resource->displayTitle()) {
+            $headMeta->appendProperty('og:title', $title);
+            $headMeta->appendProperty('twitter:title', $title);
+        }
         if ($summary = $resource->displayDescription()) {
+            // Note: the head title (site title) is already added by Omeka.
+            $headMeta->appendName('description', $summary);
             $headMeta->appendProperty('og:description', $summary);
+            $headMeta->appendProperty('twitter:description', $summary);
         }
         if ($derivative !== 'none'
             && $value = $this->thumbnailUrl($resource, $derivative)
         ) {
             $headMeta->appendProperty('og:image', $value);
+            $headMeta->appendProperty('twitter:image', $value);
             // TODO Add size and media type of the image.
         }
 
-        if ($summary) {
-            $headMeta->appendName('description', $summary);
-        }
         /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
         $values = $resource->value('dcterms:subject', ['all' => true]);
         if ($values) {
@@ -164,15 +168,18 @@ class Module extends AbstractModule
         if ($site && $value = $site->title()) {
             $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
             $headMeta->appendProperty('og:title', $value);
+            $headMeta->appendProperty('twitter:title', $value);
         }
         if ($site && $value = $site->summary()) {
             $headMeta->appendProperty('og:description', $value);
+            $headMeta->appendProperty('twitter:description', $value);
         }
         if ($derivative !== 'none') {
             $resources = $view->resources;
             $resource = reset($resources);
             if ($resource && $value = $this->thumbnailUrl($resource, $derivative)) {
                 $headMeta->appendProperty('og:image', $value);
+                $headMeta->appendProperty('twitter:image', $value);
                 // TODO Add size and media type of the image.
             }
         }
@@ -194,7 +201,10 @@ class Module extends AbstractModule
 
         /** @var \Omeka\Api\Representation\SitePageRepresentation $page */
         $page = $view->page;
-        $headMeta->appendProperty('og:title', $page->title());
+
+        $title = $page->title();
+        $headMeta->appendProperty('og:title', $title);
+        $headMeta->appendProperty('twitter:title', $title);
 
         $derivative = $siteSettings->get('metatags_media_derivative', 'large');
         $plugins = $view->getHelperPluginManager();
@@ -202,7 +212,9 @@ class Module extends AbstractModule
             if ($derivative !== 'none'
                 && $value = $this->mainImage($page)
             ) {
-                $headMeta->appendProperty('og:image', $this->thumbnailUrl($value, $derivative));
+                $value = $this->thumbnailUrl($value, $derivative);
+                $headMeta->appendProperty('og:image', $value);
+                $headMeta->appendProperty('twitter:image', $value);
                 // TODO Add size and media type of the image.
             }
             return;
@@ -210,17 +222,18 @@ class Module extends AbstractModule
 
         $pageMetadata = $plugins->get('pageMetadata');
         if ($summary = $pageMetadata('summary', $page)) {
+            // Note: the head title (site title) is already added by Omeka.
+            $headMeta->appendName('description', $summary);
             $headMeta->appendProperty('og:description', $summary);
+            $headMeta->appendProperty('twitter:description', $summary);
         }
         if ($derivative !== 'none'
             && $value = $pageMetadata('main_image', $page)
         ) {
-            $headMeta->appendProperty('og:image', $this->thumbnailUrl($value, $derivative));
+            $value = $this->thumbnailUrl($value, $derivative);
+            $headMeta->appendProperty('og:image', $value);
+            $headMeta->appendProperty('twitter:image', $value);
             // TODO Add size and media type of the image.
-        }
-        // Note: the head title (site title) is already added by Omeka.
-        if ($summary) {
-            $headMeta->appendName('description', $summary);
         }
         if ($value = $pageMetadata('tags')) {
             if (is_array($value)) {
@@ -251,9 +264,13 @@ class Module extends AbstractModule
         if ($site && $value = $site->title()) {
             $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
             $headMeta->appendProperty('og:title', $value);
+            $headMeta->appendProperty('twitter:title', $value);
         }
         if ($site && $value = $site->summary()) {
+            // Note: the head title (site title) is already added by Omeka.
+            $headMeta->appendName('description', $value);
             $headMeta->appendProperty('og:description', $value);
+            $headMeta->appendProperty('twitter:description', $value);
         }
     }
 
