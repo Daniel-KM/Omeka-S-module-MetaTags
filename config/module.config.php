@@ -20,6 +20,8 @@ return [
             'metatags_twitter_domain' => '',
             'metatags_twitter_site' => '',
             'metatags_twitter_creator' => '',
+            'metatags_media_mode' => 'thumbnail',
+            'metatags_media_asset' => '',
             'metatags_media_derivative' => 'large',
         ],
     ],

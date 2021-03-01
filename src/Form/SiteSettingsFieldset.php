@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
+
 namespace MetaTags\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
+use Omeka\Form\Element\Asset;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -24,6 +26,7 @@ class SiteSettingsFieldset extends Fieldset
                     'id' => 'metatags_enabled',
                 ],
             ])
+
             ->add([
                 'name' => 'metatags_og_type',
                 'type' => Element\Radio::class,
@@ -39,6 +42,7 @@ class SiteSettingsFieldset extends Fieldset
                     'value' => 'og_type',
                 ],
             ])
+
             ->add([
                 'name' => 'metatags_twitter_domain',
                 'type' => Element\Text::class,
@@ -72,6 +76,34 @@ class SiteSettingsFieldset extends Fieldset
                     'placeholder' => '@twitter-me',
                 ],
             ])
+
+            ->add([
+                'name' => 'metatags_media_mode',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Image to use', // @translate
+                    'value_options' => [
+                        'none' => 'No media', // @translate
+                        'static' => 'Selected asset below', // @translate
+                        'thumbnail_static' => 'Resource thumbnail or selected asset for page', // @translate
+                        'thumbnail' => 'Resource thumbnail or first image', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'metatags_media_mode',
+                    'value' => 'thumbnail_static',
+                ],
+            ])
+            ->add([
+                'name' => 'metatags_media_asset',
+                'type' => Asset::class,
+                'options' => [
+                    'label' => 'Default image', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metatags_media_asset',
+                ],
+            ])
             ->add([
                 'name' => 'metatags_media_derivative',
                 'type' => Element\Radio::class,
@@ -79,7 +111,6 @@ class SiteSettingsFieldset extends Fieldset
                     'label' => 'Derivative type', // @translate
                     'info' => 'When a thumbnail exists, the size is not taken in account.', // @translate
                     'value_options' => [
-                        'none' => 'No media', // @translate
                         'original' => 'Original', // @translate
                         'large' => 'Large', // @translate
                         'medium' => 'Medium', // @translate
