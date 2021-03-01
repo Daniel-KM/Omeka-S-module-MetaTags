@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-21 00:00+0000\n"
+"POT-Creation-Date: 2021-03-01 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,71 +17,95 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Generic/AbstractModule.php:601
+#: src/Generic/AbstractModule.php:66
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:621
+#: src/Generic/AbstractModule.php:73
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:689
+#: src/Generic/AbstractModule.php:80
+msgid "This module has resources that connot be installed."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:707
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
 "unavailable."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:12
+#: src/Form/SiteSettingsFieldset.php:14
 msgid "Meta Tags"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:21
+#: src/Form/SiteSettingsFieldset.php:23
 msgid "Append Open Graph and Twitter tags"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:31
+#: src/Form/SiteSettingsFieldset.php:34
 msgid "Open Graph type"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:33
+#: src/Form/SiteSettingsFieldset.php:36
 msgid "Simple og:type"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:34
+#: src/Form/SiteSettingsFieldset.php:37
 msgid "Resource class"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:46
+#: src/Form/SiteSettingsFieldset.php:50
 msgid "Twitter domain"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:57
+#: src/Form/SiteSettingsFieldset.php:61
 msgid "Twitter site"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:68
+#: src/Form/SiteSettingsFieldset.php:72
 msgid "Twitter creator account"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:79
-msgid "Derivative type"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:80
-msgid "When a thumbnail exists, the size is not taken in account."
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:82
-msgid "No media"
-msgstr ""
-
 #: src/Form/SiteSettingsFieldset.php:84
-msgid "Large"
+msgid "Image to use"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:86
+msgid "No media"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:87
+msgid "Selected asset below"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:88
+msgid "Resource thumbnail or selected asset for page"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:89
+msgid "Resource thumbnail or first image"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:101
+msgid "Default image"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:111
+msgid "Derivative type"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:112
+msgid "When a thumbnail exists, the size is not taken in account."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:115
+msgid "Large"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:117
 msgid "Square"
 msgstr ""
