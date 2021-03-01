@@ -2,7 +2,8 @@ Meta Tags (module for Omeka S)
 ==============================
 
 > __New versions of this module and support for Omeka S version 3.0 and above
-> are available on [GitLab], which seems to respect users and privacy better.__
+> are available on [GitLab], which seems to respect users and privacy better
+> than the previous repository.__
 
 [Meta Tags] is a module for [Omeka S] that adds [Open Graph] and [Twitter cards]
 tags inside the header of all pages, item sets and items, so the title, the
@@ -53,6 +54,7 @@ TODO
 - [x] Clarify the open graph type: use og type or the resource class?
 - [ ] Clarify who is the author of the document: the owner of the resource or the creator? Add a setting. The same for the rights.
 - [ ] Add data about media type and size of the media.
+- [ ] Avoid mixing with module Sharing.
 
 
 Troubleshooting
