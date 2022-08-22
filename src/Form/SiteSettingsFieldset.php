@@ -16,6 +16,7 @@ class SiteSettingsFieldset extends Fieldset
     public function init(): void
     {
         $this
+            ->setAttribute('id', 'meta-tags')
             ->add([
                 'name' => 'metatags_enabled',
                 'type' => Element\Checkbox::class,
