@@ -100,7 +100,7 @@ This module was built for the digital library of the cooperative heritage [Fonda
 [Omeka S]: https://omeka.org/s
 [Open Graph]: https://ogp.me
 [Twitter cards]: https://developer.twitter.com/en/docs/twitter-for-websites/cards
-[Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
+[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
 [Block Plus]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus
 [MetaTags.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags/-/releases
