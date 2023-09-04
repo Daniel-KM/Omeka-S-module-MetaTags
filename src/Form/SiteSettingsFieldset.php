@@ -13,14 +13,21 @@ class SiteSettingsFieldset extends Fieldset
      */
     protected $label = 'Meta Tags'; // @translate
 
+    protected $elementGroups = [
+        'meta_tags' => 'Meta Tags', // @translate
+    ];
+
     public function init(): void
     {
         $this
             ->setAttribute('id', 'meta-tags')
+            ->setOption('element_groups', $this->elementGroups)
+
             ->add([
                 'name' => 'metatags_enabled',
                 'type' => Element\Checkbox::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Append Open Graph and Twitter tags', // @translate
                 ],
                 'attributes' => [
@@ -32,6 +39,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_og_type',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Open Graph type', // @translate
                     'value_options' => [
                         'og_type' => 'Simple og:type', // @translate
@@ -48,6 +56,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_twitter_domain',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Twitter domain', // @translate
                 ],
                 'attributes' => [
@@ -59,6 +68,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_twitter_site',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Twitter site', // @translate
                 ],
                 'attributes' => [
@@ -70,6 +80,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_twitter_creator',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Twitter creator account', // @translate
                 ],
                 'attributes' => [
@@ -82,6 +93,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_media_mode',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Image to use', // @translate
                     'value_options' => [
                         'none' => 'No media', // @translate
@@ -99,6 +111,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_media_asset',
                 'type' => Asset::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Default image', // @translate
                 ],
                 'attributes' => [
@@ -109,6 +122,7 @@ class SiteSettingsFieldset extends Fieldset
                 'name' => 'metatags_media_derivative',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'meta_tags',
                     'label' => 'Derivative type', // @translate
                     'info' => 'When a thumbnail exists, the size is not taken in account.', // @translate
                     'value_options' => [
