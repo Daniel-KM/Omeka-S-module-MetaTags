@@ -4,7 +4,7 @@ namespace MetaTags\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
-use Omeka\Form\Element\Asset;
+use Omeka\Form\Element as OmekaElement;
 
 class SiteSettingsFieldset extends Fieldset
 {
@@ -109,7 +109,7 @@ class SiteSettingsFieldset extends Fieldset
             ])
             ->add([
                 'name' => 'metatags_media_asset',
-                'type' => Asset::class,
+                'type' => OmekaElement\Asset::class,
                 'options' => [
                     'element_group' => 'meta_tags',
                     'label' => 'Default image', // @translate
