@@ -16,17 +16,26 @@ Installation
 
 See general end user documentation for [installing a module].
 
-The optional module [Generic] may be installed first.
+The module [Common] must be installed first.
+
+You may use the release zip to install it or clone the source via git.
 
 * From the zip
 
-Download the last release [MetaTags.zip] from the list of releases, and
-uncompress it in the `modules` directory.
+Download the last release [MetaTags.zip] from the list of releases (the master
+does not contain the dependency), and uncompress it in the `modules` directory.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
 the module to `MetaTags`.
+
+```sh
+cd modules
+git clone https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags.git MetaTags
+```
+
+Then install it like any other Omeka module and follow the config instructions.
 
 
 Usage
@@ -91,7 +100,7 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2020 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2020-2024 (see [Daniel-KM] on GitLab)
 
 This module was built for the digital library of the cooperative heritage [Fondation Maison de Salins].
 
@@ -100,8 +109,8 @@ This module was built for the digital library of the cooperative heritage [Fonda
 [Omeka S]: https://omeka.org/s
 [Open Graph]: https://ogp.me
 [Twitter cards]: https://developer.twitter.com/en/docs/twitter-for-websites/cards
-[Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [Block Plus]: https://gitlab.com/Daniel-KM/Omeka-S-module-BlockPlus
 [MetaTags.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-MetaTags/-/releases
 [recommendations]: https://developer.twitter.com/en/docs/twitter-for-websites/cards/guides/getting-started#opengraph
