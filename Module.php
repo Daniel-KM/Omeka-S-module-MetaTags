@@ -322,7 +322,7 @@ class Module extends AbstractModule
         if ($site) {
             $headMeta->appendProperty('og:site_name', $site->title());
         }
-        if ($value = $siteSettings->get('locale')) {
+        if ($value = $this->ogLocale((string) ($siteSettings->get('locale') ?: $view->setting('locale')))) {
             $headMeta->appendProperty('og:locale', $value);
         }
         if ($url = $this->currentUrl($view)) {
@@ -485,6 +485,56 @@ class Module extends AbstractModule
             $resource->value($term, ['all' => true])
         );
         return implode(', ', array_unique(array_filter(array_map('trim', $texts), 'strlen')));
+    }
+
+    /**
+     * Convert a locale into the format of Open Graph "language_TERRITORY".
+     *
+     * The territory is required, so the main one is added when missing.
+     */
+    protected function ogLocale(string $locale): ?string
+    {
+        if (!preg_match('~^([a-z]{2,3})(?:[_-][a-z]{4})?(?:[_-]([a-z]{2}))?(?:$|[_.@-])~i', $locale, $matches)) {
+            return null;
+        }
+        $language = strtolower($matches[1]);
+        if (!empty($matches[2])) {
+            return $language . '_' . strtoupper($matches[2]);
+        }
+        $territories = [
+            'ar' => 'AR',
+            'br' => 'FR',
+            'ca' => 'ES',
+            'co' => 'FR',
+            'cs' => 'CZ',
+            'cy' => 'GB',
+            'da' => 'DK',
+            'el' => 'GR',
+            'en' => 'US',
+            'et' => 'EE',
+            'eu' => 'ES',
+            'fa' => 'IR',
+            'ga' => 'IE',
+            'gl' => 'ES',
+            'he' => 'IL',
+            'hi' => 'IN',
+            'hy' => 'AM',
+            'ja' => 'JP',
+            'ka' => 'GE',
+            'ko' => 'KR',
+            'ms' => 'MY',
+            'nb' => 'NO',
+            'nn' => 'NO',
+            'oc' => 'FR',
+            'sl' => 'SI',
+            'sq' => 'AL',
+            'sr' => 'RS',
+            'sv' => 'SE',
+            'uk' => 'UA',
+            'vi' => 'VN',
+            'zh' => 'CN',
+        ];
+        return $language . '_' . ($territories[$language] ?? strtoupper($language));
     }
 
     /**
