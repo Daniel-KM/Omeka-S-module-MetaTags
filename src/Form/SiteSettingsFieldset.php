@@ -2,6 +2,7 @@
 
 namespace MetaTags\Form;
 
+use Common\Form\Element as CommonElement;
 use Laminas\Form\Element;
 use Laminas\Form\Fieldset;
 use Omeka\Form\Element as OmekaElement;
@@ -74,6 +75,37 @@ class SiteSettingsFieldset extends Fieldset
                 'attributes' => [
                     'id' => 'metatags_twitter_creator',
                     'placeholder' => '@twitter-me',
+                ],
+            ])
+
+            ->add([
+                'name' => 'metatags_author',
+                'type' => CommonElement\OptionalPropertySelect::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Author of the resources', // @translate
+                    'empty_option' => '',
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'metatags_author',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a property…', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'metatags_rights',
+                'type' => CommonElement\OptionalPropertySelect::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Rights of the resources', // @translate
+                    'empty_option' => '',
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'metatags_rights',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a property…', // @translate
                 ],
             ])
 

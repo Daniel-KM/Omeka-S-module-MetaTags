@@ -24,6 +24,8 @@ return [
             'metatags_og_type' => 'og_type',
             'metatags_twitter_site' => '',
             'metatags_twitter_creator' => '',
+            'metatags_author' => '',
+            'metatags_rights' => '',
             'metatags_media_mode' => 'thumbnail',
             'metatags_media_asset' => '',
             'metatags_media_derivative' => 'large',

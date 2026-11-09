@@ -12,6 +12,7 @@ use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractRepresentation;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Api\Representation\AssetRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Module\AbstractModule;
@@ -144,25 +145,19 @@ class Module extends AbstractModule
 
         $this->appendThumbnail($resource, $view);
 
-        /** @var \Omeka\Api\Representation\ValueRepresentation[] $values */
-        $values = $resource->value('dcterms:subject', ['all' => true]);
-        if ($values) {
-            $values = implode(', ', array_unique(array_filter(array_map(function ($v) {
-                return $v->valueResource() ? $v->valueResource()->displayTitle() : $v->value();
-            }, $values), 'strlen')));
-            if ($values) {
-                $headMeta->appendName('keywords', $values);
-            }
+        if ($value = $this->valueTexts($resource, 'dcterms:subject')) {
+            $headMeta->appendName('keywords', $value);
         }
 
-        /* // TODO Who is the creator? Owner of resource or author of document?
-        if ($value = $resource->value('dcterms:creator')) {
-            $headMeta->appendName('author', (string) $value);
+        $author = $siteSettings->get('metatags_author', '');
+        if ($author && $value = $this->valueTexts($resource, $author)) {
+            $headMeta->appendName('author', $value);
         }
-        if ($value = $resource->value('dcterms:rights')) {
-            $headMeta->appendName('copyright', (string) $value);
+
+        $rights = $siteSettings->get('metatags_rights', '');
+        if ($rights && $value = $this->valueTexts($resource, $rights)) {
+            $headMeta->appendName('copyright', $value);
         }
-        */
     }
 
     public function handleSiteResources(Event $event): void
@@ -478,6 +473,18 @@ class Module extends AbstractModule
             }
         }
         return $image;
+    }
+
+    /**
+     * Get the list of the distinct values of a property as a string.
+     */
+    protected function valueTexts(AbstractResourceEntityRepresentation $resource, string $term): string
+    {
+        $texts = array_map(
+            fn ($v) => (string) ($v->valueResource() ? $v->valueResource()->displayTitle() : ($v->value() ?? $v->uri())),
+            $resource->value($term, ['all' => true])
+        );
+        return implode(', ', array_unique(array_filter(array_map('trim', $texts), 'strlen')));
     }
 
     /**
