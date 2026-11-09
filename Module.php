@@ -197,6 +197,7 @@ class Module extends AbstractModule
         }
 
         if ($site && $value = $this->shortText((string) $site->summary())) {
+            $headMeta->appendName('description', $value);
             $headMeta->appendProperty('og:description', $value);
             $headMeta->appendName('twitter:description', $value);
         }
@@ -372,6 +373,7 @@ class Module extends AbstractModule
         $query = $withQuery ? $this->currentQuery() : [];
         if ($url = $this->currentUrl($view, $query)) {
             $headMeta->appendProperty('og:url', $url);
+            $view->headLink(['rel' => 'canonical', 'href' => $url]);
         }
 
         $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary_large_image' : 'summary');
