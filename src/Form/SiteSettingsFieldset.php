@@ -136,6 +136,18 @@ class SiteSettingsFieldset extends Fieldset
                     'id' => 'metatags_citation',
                 ],
             ])
+            ->add([
+                'name' => 'metatags_jsonld',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Append structured data (schema.org)', // @translate
+                    'info' => 'The data are appended as json-ld to the pages of resources and of the site, with the same values than the other tags. The type is set from the resource class, for example Book or ImageObject, else CreativeWork. They are skipped when the module Resource Meta is active, because it manages them with a full mapping.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metatags_jsonld',
+                ],
+            ])
 
             ->add([
                 'name' => 'metatags_noindex_params',

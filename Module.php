@@ -181,6 +181,10 @@ class Module extends AbstractModule
         if ($resource instanceof ItemRepresentation && $siteSettings->get('metatags_citation', false)) {
             $this->appendCitation($view, $resource, $author ?: 'dcterms:creator', $dateTerm);
         }
+
+        if ($this->isJsonLdEnabled()) {
+            $this->appendJsonLd($view, $this->resourceJsonLd($view, $resource, $summary, $author ?: 'dcterms:creator', $dateTerm, $rights));
+        }
     }
 
     public function handleSiteResources(Event $event): void
@@ -258,43 +262,45 @@ class Module extends AbstractModule
             $headMeta->appendName('twitter:description', $summary);
         }
 
-        $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
-
-        if (!$pageMetadata) {
-            if ($mediaMode === 'none') {
-                return;
-            }
-            if ($mediaMode === 'thumbnail'
-                && ($value = $this->mainImage($page))
-                && ($image = $this->imageData($value, $siteSettings->get('metatags_media_derivative', 'large')))
-            ) {
-                $this->appendImage($view, $image);
-                return;
-            }
-            $this->appendThumbnailDefault($view);
-            return;
-        }
-
         // The main image is the one of the block of metadata, else the first
         // image of the blocks.
-        if ($mediaMode === 'thumbnail'
-            && ($thumbnail = $pageMetadata('main_image', $page) ?: $pageMetadata('first_image', $page))
-            && ($image = $this->imageData($thumbnail, $siteSettings->get('metatags_media_derivative', 'large')))
-        ) {
+        $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
+        $image = null;
+        if ($mediaMode === 'thumbnail') {
+            $value = $pageMetadata
+                ? ($pageMetadata('main_image', $page) ?: $pageMetadata('first_image', $page))
+                : $this->mainImage($page);
+            $image = $value ? $this->imageData($value, $siteSettings->get('metatags_media_derivative', 'large')) : null;
+        }
+        if ($image) {
             $this->appendImage($view, $image);
         } elseif ($mediaMode !== 'none') {
             $this->appendThumbnailDefault($view);
         }
 
-        if ($value = $pageMetadata('tags')) {
+        if ($pageMetadata && $value = $pageMetadata('tags')) {
             if (is_array($value)) {
                 $value = implode(', ', array_unique(array_filter(array_map('trim', $value), 'strlen')));
             }
             $headMeta->appendName('keywords', $value);
         }
 
-        if ($value = $pageMetadata('credits')) {
+        if ($pageMetadata && $value = $pageMetadata('credits')) {
             $headMeta->appendName('author', $value);
+        }
+
+        if ($this->isJsonLdEnabled()) {
+            $data = [
+                '@type' => 'WebPage',
+                'name' => $title,
+                'description' => $summary,
+                'url' => $this->tagValue($view, 'og:url'),
+                'image' => $this->tagValue($view, 'og:image'),
+                'datePublished' => $page->created()->format(DATE_ATOM),
+                'dateModified' => $page->modified() ? $page->modified()->format(DATE_ATOM) : null,
+                'isPartOf' => $site ? ['@type' => 'WebSite', 'name' => $site->title(), 'url' => $this->absoluteUrl($view, $site->siteUrl())] : null,
+            ];
+            $this->appendJsonLd($view, $data);
         }
     }
 
@@ -586,6 +592,156 @@ class Module extends AbstractModule
             $resource->value($term, ['all' => true])
         );
         return array_values(array_unique(array_filter(array_map('trim', $texts), 'strlen')));
+    }
+
+    /**
+     * Check if the data of schema.org should be appended.
+     *
+     * The module ResourceMeta manages them with a full mapping, so they are not
+     * appended when it is active.
+     */
+    protected function isJsonLdEnabled(): bool
+    {
+        return (bool) $this->getServiceLocator()->get('Omeka\Settings\Site')->get('metatags_jsonld', false)
+            && !$this->isModuleActive('ResourceMeta');
+    }
+
+    /**
+     * Get the data of schema.org of a resource.
+     *
+     * The values are the ones of the other tags, so the mapping is the same.
+     */
+    protected function resourceJsonLd(PhpRenderer $view, AbstractResourceEntityRepresentation $resource, string $summary, string $authorTerm, string $dateTerm, string $rightsTerm): array
+    {
+        $license = null;
+        if ($rightsTerm) {
+            foreach ($resource->value($rightsTerm, ['all' => true]) as $value) {
+                $uri = $value->uri() ?: (string) $value->value();
+                if (preg_match('~^https?://~', $uri)) {
+                    $license = $uri;
+                    break;
+                }
+            }
+        }
+
+        $isPartOf = [];
+        if ($resource instanceof ItemRepresentation) {
+            $site = $view->site;
+            foreach ($resource->itemSets() as $itemSet) {
+                $isPartOf[] = [
+                    '@type' => 'Collection',
+                    'name' => (string) $itemSet->displayTitle(),
+                    'url' => $site ? $this->absoluteUrl($view, $itemSet->siteUrl($site->slug())) : null,
+                ];
+            }
+        }
+
+        $publishers = array_map(fn ($v) => ['@type' => 'Organization', 'name' => $v], $this->valueList($resource, 'dcterms:publisher'));
+
+        return [
+            '@type' => $this->schemaType($resource),
+            'name' => (string) $resource->displayTitle(),
+            'description' => $summary,
+            'url' => $this->tagValue($view, 'og:url'),
+            'image' => $this->tagValue($view, 'og:image'),
+            // The authors may be persons or organizations, so they are names.
+            'author' => $this->valueList($resource, $authorTerm) ?: null,
+            'datePublished' => $dateTerm ? $this->isoDate($resource, $dateTerm) : null,
+            'inLanguage' => $this->valueList($resource, 'dcterms:language')[0] ?? null,
+            'publisher' => $publishers ?: null,
+            'keywords' => $this->valueTexts($resource, 'dcterms:subject') ?: null,
+            'license' => $license,
+            'isPartOf' => $isPartOf ?: null,
+        ];
+    }
+
+    /**
+     * Get the type of schema.org of a resource from its class or media type.
+     */
+    protected function schemaType(AbstractResourceEntityRepresentation $resource): string
+    {
+        if ($resource instanceof \Omeka\Api\Representation\ItemSetRepresentation) {
+            return 'Collection';
+        }
+        if ($resource instanceof \Omeka\Api\Representation\MediaRepresentation) {
+            $types = ['image' => 'ImageObject', 'video' => 'VideoObject', 'audio' => 'AudioObject'];
+            return $types[strtok((string) $resource->mediaType(), '/')] ?? 'MediaObject';
+        }
+        $class = $resource->resourceClass();
+        if (!$class) {
+            return 'CreativeWork';
+        }
+        $term = $class->term();
+        if (strpos($term, 'schema:') === 0) {
+            return substr($term, 7);
+        }
+        $types = [
+            'bibo:AcademicArticle' => 'ScholarlyArticle',
+            'bibo:Article' => 'Article',
+            'bibo:AudioDocument' => 'AudioObject',
+            'bibo:AudioVisualDocument' => 'VideoObject',
+            'bibo:Book' => 'Book',
+            'bibo:Chapter' => 'Chapter',
+            'bibo:Image' => 'ImageObject',
+            'bibo:Letter' => 'Message',
+            'bibo:Manuscript' => 'Manuscript',
+            'bibo:Map' => 'Map',
+            'bibo:Periodical' => 'Periodical',
+            'bibo:Report' => 'Report',
+            'bibo:Thesis' => 'Thesis',
+            'bibo:Webpage' => 'WebPage',
+            'dctype:Collection' => 'Collection',
+            'dctype:Dataset' => 'Dataset',
+            'dctype:Image' => 'ImageObject',
+            'dctype:MovingImage' => 'VideoObject',
+            'dctype:Software' => 'SoftwareApplication',
+            'dctype:Sound' => 'AudioObject',
+            'dctype:StillImage' => 'ImageObject',
+            'dctype:Text' => 'CreativeWork',
+        ];
+        return $types[$term] ?? 'CreativeWork';
+    }
+
+    /**
+     * Append the data of schema.org as json-ld, without the empty values.
+     */
+    protected function appendJsonLd(PhpRenderer $view, array $data): void
+    {
+        $clean = function (array $data) use (&$clean): array {
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    $value = $clean($value);
+                }
+                if ($value === null || $value === '' || $value === []) {
+                    unset($data[$key]);
+                } else {
+                    $data[$key] = $value;
+                }
+            }
+            return $data;
+        };
+        $data = ['@context' => 'https://schema.org'] + $clean($data);
+        // The flags avoid to close the script with a value.
+        $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
+        $view->headScript()->appendScript($json, 'application/ld+json', ['noescape' => true]);
+    }
+
+    /**
+     * Get the content of the first meta tag with a name or a property.
+     */
+    protected function tagValue(PhpRenderer $view, string $key): ?string
+    {
+        foreach ($view->headMeta()->getContainer() as $item) {
+            if (($item->{$item->type} ?? null) === $key) {
+                return (string) $item->content;
+            }
+        }
+        return null;
+    }
+
+    protected function absoluteUrl(PhpRenderer $view, string $url): string
+    {
+        return substr($url, 0, 4) === 'http' ? $url : $view->serverUrl() . $url;
     }
 
     /**
