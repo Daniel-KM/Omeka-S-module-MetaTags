@@ -101,6 +101,10 @@ class Module extends AbstractModule
 
         // Remove the duplicate tags appended later by other modules, like
         // Sharing.
+        // A closure is used, because the module BlocksDisposition detaches the
+        // listeners of the modules that are not listed in its settings, but
+        // keeps the closures.
+        $handleDuplicateTags = fn (Event $event) => $this->handleDuplicateTags($event);
         foreach ([
             'Omeka\Controller\Site\Item',
             'Omeka\Controller\Site\Media',
@@ -109,7 +113,7 @@ class Module extends AbstractModule
             $sharedEventManager->attach(
                 $controller,
                 'view.show.after',
-                [$this, 'handleDuplicateTags'],
+                $handleDuplicateTags,
                 -100
             );
         }
