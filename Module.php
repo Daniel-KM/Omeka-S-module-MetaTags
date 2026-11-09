@@ -132,14 +132,14 @@ class Module extends AbstractModule
 
         if ($title = $resource->displayTitle()) {
             $headMeta->appendProperty('og:title', $title);
-            $headMeta->appendProperty('twitter:title', $title);
+            $headMeta->appendName('twitter:title', $title);
         }
 
-        if ($summary = $resource->displayDescription()) {
+        if ($summary = $this->shortText((string) $resource->displayDescription())) {
             // Note: the head title (site title) is already added by Omeka.
             $headMeta->appendName('description', $summary);
             $headMeta->appendProperty('og:description', $summary);
-            $headMeta->appendProperty('twitter:description', $summary);
+            $headMeta->appendName('twitter:description', $summary);
         }
 
         $this->appendThumbnail($resource, $view);
@@ -183,12 +183,12 @@ class Module extends AbstractModule
         if ($site && $value = $site->title()) {
             $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
             $headMeta->appendProperty('og:title', $value);
-            $headMeta->appendProperty('twitter:title', $value);
+            $headMeta->appendName('twitter:title', $value);
         }
 
-        if ($site && $value = $site->summary()) {
+        if ($site && $value = $this->shortText((string) $site->summary())) {
             $headMeta->appendProperty('og:description', $value);
-            $headMeta->appendProperty('twitter:description', $value);
+            $headMeta->appendName('twitter:description', $value);
         }
 
         $resources = $view->resources;
@@ -218,7 +218,7 @@ class Module extends AbstractModule
         $title = $page->title();
         // Note: the head title (site title) is already added by Omeka.
         $headMeta->appendProperty('og:title', $title);
-        $headMeta->appendProperty('twitter:title', $title);
+        $headMeta->appendName('twitter:title', $title);
 
         $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
 
@@ -233,7 +233,7 @@ class Module extends AbstractModule
                 $derivative = $siteSettings->get('metatags_media_derivative', 'large');
                 $value = $this->thumbnailUrl($value, $derivative);
                 $headMeta->appendProperty('og:image', $value);
-                $headMeta->appendProperty('twitter:image', $value);
+                $headMeta->appendName('twitter:image', $value);
                 // TODO Add size and media type of the image.
                 return;
             }
@@ -242,10 +242,10 @@ class Module extends AbstractModule
         }
 
         $pageMetadata = $plugins->get('pageMetadata');
-        if ($summary = $pageMetadata('summary', $page)) {
+        if ($summary = $this->shortText((string) $pageMetadata('summary', $page))) {
             $headMeta->appendName('description', $summary);
             $headMeta->appendProperty('og:description', $summary);
-            $headMeta->appendProperty('twitter:description', $summary);
+            $headMeta->appendName('twitter:description', $summary);
         }
 
         if ($mediaMode === 'thumbnail'
@@ -254,7 +254,7 @@ class Module extends AbstractModule
             $derivative = $siteSettings->get('metatags_media_derivative', 'large');
             $thumbnail = $this->thumbnailUrl($thumbnail, $derivative);
             $headMeta->appendProperty('og:image', $thumbnail);
-            $headMeta->appendProperty('twitter:image', $thumbnail);
+            $headMeta->appendName('twitter:image', $thumbnail);
             // TODO Add size and media type of the image.
         } elseif ($mediaMode !== 'none') {
             $this->appendThumbnailDefault($view);
@@ -290,14 +290,14 @@ class Module extends AbstractModule
         if ($site && $value = $site->title()) {
             $value .= ' · ' . $view->setting('installation_title', 'Omeka S');
             $headMeta->appendProperty('og:title', $value);
-            $headMeta->appendProperty('twitter:title', $value);
+            $headMeta->appendName('twitter:title', $value);
         }
 
-        if ($site && $value = $site->summary()) {
+        if ($site && $value = $this->shortText((string) $site->summary())) {
             // Note: the head title (site title) is already added by Omeka.
             $headMeta->appendName('description', $value);
             $headMeta->appendProperty('og:description', $value);
-            $headMeta->appendProperty('twitter:description', $value);
+            $headMeta->appendName('twitter:description', $value);
         }
 
         $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
@@ -336,16 +336,18 @@ class Module extends AbstractModule
         if ($value = $siteSettings->get('locale')) {
             $headMeta->appendProperty('og:locale', $value);
         }
-        $headMeta->appendProperty('og:url', $view->serverUrl(true));
+        if ($url = $this->currentUrl($view)) {
+            $headMeta->appendProperty('og:url', $url);
+        }
 
-        $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary' : 'summary_large_image');
-        if ($value = $siteSettings->get('metatags_twitter_domain', true)) {
+        $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary_large_image' : 'summary');
+        if ($value = $siteSettings->get('metatags_twitter_domain', '')) {
             $headMeta->appendName('twitter:domain', $value);
         }
-        if ($value = $siteSettings->get('metatags_twitter_site', true)) {
+        if ($value = $siteSettings->get('metatags_twitter_site', '')) {
             $headMeta->appendName('twitter:site', $value);
         }
-        if ($value = $siteSettings->get('metatags_twitter_creator', true)) {
+        if ($value = $siteSettings->get('metatags_twitter_creator', '')) {
             $headMeta->appendName('twitter:creator', $value);
         }
     }
@@ -366,7 +368,7 @@ class Module extends AbstractModule
             if ($thumbnail) {
                 $headMeta = $view->headMeta();
                 $headMeta->appendProperty('og:image', $thumbnail);
-                $headMeta->appendProperty('twitter:image', $thumbnail);
+                $headMeta->appendName('twitter:image', $thumbnail);
                 // TODO Add size and media type of the image.
                 return;
             }
@@ -379,20 +381,21 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
-        $asset = $siteSettings->get('metatags_media_asset');
-        if ($asset) {
-            $api = $this->getServiceLocator()->get('Omeka\ApiManager');
-            try {
-                $asset = $api->search('assets', ['id' => $asset], ['initialize' =>  false])->getContent();
-                /** @var \Omeka\Api\Representation\AssetRepresentation $asset */
-                $asset = reset($asset);
-                $value = $asset->assetUrl();
-                $headMeta = $view->headMeta();
-                $headMeta->appendProperty('og:image', $value);
-                $headMeta->appendProperty('twitter:image', $value);
-            } catch (NotFoundException $e) {
-            }
+        $assetId = (int) $siteSettings->get('metatags_media_asset');
+        if (!$assetId) {
+            return;
         }
+        try {
+            /** @var \Omeka\Api\Representation\AssetRepresentation $asset */
+            $asset = $services->get('Omeka\ApiManager')->read('assets', $assetId)->getContent();
+        } catch (NotFoundException $e) {
+            // The asset may have been deleted.
+            return;
+        }
+        $value = $asset->assetUrl();
+        $headMeta = $view->headMeta();
+        $headMeta->appendProperty('og:image', $value);
+        $headMeta->appendName('twitter:image', $value);
     }
 
     /**
@@ -423,6 +426,38 @@ class Module extends AbstractModule
     }
 
     /**
+     * Get the canonical url of the current page, without the query.
+     *
+     * The request uri is not used, since it is not available outside of http.
+     */
+    protected function currentUrl(PhpRenderer $view): ?string
+    {
+        try {
+            $url = $view->url(null, [], [], true);
+        } catch (\Throwable $e) {
+            return null;
+        }
+        return $url && substr($url, 0, 4) !== 'http'
+            ? $view->serverUrl() . $url
+            : $url;
+    }
+
+    /**
+     * Get a plain text shortened to the recommended length for descriptions.
+     */
+    protected function shortText(string $text, int $length = 200): string
+    {
+        $text = trim(preg_replace('~\s+~u', ' ', html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        if (mb_strlen($text) <= $length) {
+            return $text;
+        }
+        $short = mb_substr($text, 0, $length - 1);
+        // Cut at the last space, if any, to avoid a truncated word.
+        $space = mb_strrpos($short, ' ');
+        return rtrim($space > $length / 2 ? mb_substr($short, 0, $space) : $short, ' ,;:.') . '…';
+    }
+
+    /**
      * @see \BlockPlus\View\Helper\PageMetadata
      *
      * @param SitePageRepresentation $page
@@ -441,6 +476,17 @@ class Module extends AbstractModule
                     } catch (\Omeka\Api\Exception\NotFoundException $e) {
                     }
                 }
+            } elseif ($layout === 'asset') {
+                // The data of the core block are the list of attachments.
+                foreach ($block->data() as $attachment) {
+                    if (is_array($attachment) && !empty($attachment['id'])) {
+                        try {
+                            return $api->read('assets', ['id' => $attachment['id']])->getContent();
+                        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                        }
+                    }
+                }
+                continue;
             } elseif ($layout === 'assets') {
                 foreach ($block->dataValue('assets', []) as $asset) {
                     try {

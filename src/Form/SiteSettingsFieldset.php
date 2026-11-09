@@ -104,7 +104,7 @@ class SiteSettingsFieldset extends Fieldset
                 ],
                 'attributes' => [
                     'id' => 'metatags_media_mode',
-                    'value' => 'thumbnail_static',
+                    'value' => 'thumbnail',
                 ],
             ])
             ->add([
