@@ -187,7 +187,7 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
-        if (!$siteSettings->get('metatags_enabled', true)) {
+        if (!$siteSettings->get('metatags_enabled', true) || !$this->isBrowseAction()) {
             return;
         }
 
@@ -302,7 +302,7 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $siteSettings = $services->get('Omeka\Settings\Site');
-        if (!$siteSettings->get('metatags_enabled', true)) {
+        if (!$siteSettings->get('metatags_enabled', true) || !$this->isBrowseAction()) {
             return;
         }
 
@@ -330,6 +330,19 @@ class Module extends AbstractModule
         if ($mediaMode !== 'none') {
             $this->appendThumbnailDefault($view);
         }
+    }
+
+    /**
+     * Check if the current page is a list.
+     *
+     * The event "view.browse.before" may be triggered by a block inside another
+     * page, for example the results of a search form, with the controller of
+     * the route, so the tags of the page should not be replaced.
+     */
+    protected function isBrowseAction(): bool
+    {
+        $routeMatch = $this->getServiceLocator()->get('Omeka\Status')->getRouteMatch();
+        return $routeMatch && $routeMatch->getParam('action') === 'browse';
     }
 
     /**
