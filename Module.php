@@ -245,10 +245,22 @@ class Module extends AbstractModule
             $headMeta->appendProperty('article:modified_time', $modified->format(DATE_ATOM));
         }
 
+        $plugins = $view->getHelperPluginManager();
+        $pageMetadata = $plugins->has('pageMetadata') ? $plugins->get('pageMetadata') : null;
+
+        // The summary of the page, else the summary of the site.
+        $site = $view->site;
+        $summary = $this->shortText((string) ($pageMetadata ? $pageMetadata('summary', $page) : ''))
+            ?: $this->shortText((string) ($site ? $site->summary() : ''));
+        if ($summary) {
+            $headMeta->appendName('description', $summary);
+            $headMeta->appendProperty('og:description', $summary);
+            $headMeta->appendName('twitter:description', $summary);
+        }
+
         $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
 
-        $plugins = $view->getHelperPluginManager();
-        if (!$plugins->has('pageMetadata')) {
+        if (!$pageMetadata) {
             if ($mediaMode === 'none') {
                 return;
             }
@@ -261,13 +273,6 @@ class Module extends AbstractModule
             }
             $this->appendThumbnailDefault($view);
             return;
-        }
-
-        $pageMetadata = $plugins->get('pageMetadata');
-        if ($summary = $this->shortText((string) $pageMetadata('summary', $page))) {
-            $headMeta->appendName('description', $summary);
-            $headMeta->appendProperty('og:description', $summary);
-            $headMeta->appendName('twitter:description', $summary);
         }
 
         // The main image is the one of the block of metadata, else the first
