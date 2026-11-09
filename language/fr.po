@@ -7,107 +7,223 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-01 00:00+0000\n"
-"PO-Revision-Date: 2021-03-01 00:00+0000\n"
+"POT-Creation-Date: 2026-11-09 00:00+0000\n"
+"PO-Revision-Date: 2026-11-09 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.6\n"
 
-#: src/Generic/AbstractModule.php:66
+#: data/scripts/upgrade.php:31 Module.php:66
 #, php-format
-msgid "This module requires the module \"%s\"."
-msgstr "Ce module requiert le module \"%s\"."
+msgid "The module %1$s should be upgraded to version %2$s or later."
+msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou ultérieure."
 
-#: src/Generic/AbstractModule.php:73
-#, php-format
-msgid "This module requires modules \"%s\"."
-msgstr "Ce module requiert les modules \"%s\"."
+#: data/scripts/upgrade.php:35
+msgid "Missing requirement. Unable to upgrade."
+msgstr "Pré-requis absent. Impossible de mettre à jour."
 
-#: src/Generic/AbstractModule.php:80
-msgid "This module has resources that connot be installed."
-msgstr "Ce module a des ressources qui ne peuvent pas être installées."
-
-#: src/Generic/AbstractModule.php:707
-#, php-format
+#: data/scripts/upgrade.php:62
 msgid ""
-"The module \"%s\" was automatically deactivated because the dependencies are "
-"unavailable."
+"The meta tags were fixed: the Twitter accounts are output only when they are "
+"set, the card is large for large images and the description is shortened to "
+"200 characters."
 msgstr ""
-"Le module \"%s\" a été automatiquement désactivé car ses dépendances ne sont "
-"plus disponibles."
+"Les balises meta ont été corrigées : les comptes Twitter ne sont indiqués "
+"que s’ils sont définis, la carte est grande pour les grandes images et la "
+"description est réduite à 200 caractères."
 
-#: src/Form/SiteSettingsFieldset.php:14
+#: data/scripts/upgrade.php:67
+msgid ""
+"The settings of the module are displayed again in the site settings. New "
+"settings allow to set the author and the rights of the resources. The size, "
+"the type and the alternative text of the image are added, the locale uses "
+"the format of Open Graph and the duplicate tags of the module Sharing are "
+"removed. A canonical link is added, and the searches are not indexed by the "
+"search engines. The date of the documents can be set, the links to the other "
+"languages are added and options add the tags for citation and the structured "
+"data of schema.org. The setting \"Twitter domain\" was removed."
+msgstr ""
+"Les réglages du module sont de nouveau affichés dans les réglages du site. "
+"De nouveaux réglages permettent de définir l’auteur et les droits des "
+"ressources. La taille, le type et le texte alternatif de l’image sont "
+"ajoutés, la langue utilise le format d’Open Graph et les balises en double "
+"du module Sharing sont supprimées. Un lien canonique est ajouté et les "
+"recherches ne sont pas indexées par les moteurs de recherche. La date des "
+"documents peut être définie, les liens vers les autres langues sont ajoutés "
+"et des options ajoutent les balises de citation et les données structurées "
+"de schema.org. Le réglage « Domaine Twitter » a été supprimé."
+
+#: src/Form/SiteSettingsFieldset.php:15 src/Form/SiteSettingsFieldset.php:18
 msgid "Meta Tags"
 msgstr "Méta tags"
 
-#: src/Form/SiteSettingsFieldset.php:23
+#: src/Form/SiteSettingsFieldset.php:32
 msgid "Append Open Graph and Twitter tags"
 msgstr "Ajouter les éléments méta Open Graph et Twitter"
 
-#: src/Form/SiteSettingsFieldset.php:34
+#: src/Form/SiteSettingsFieldset.php:44
 msgid "Open Graph type"
 msgstr "Type Open Graph"
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:46
 msgid "Simple og:type"
 msgstr "Simple og:type"
-
-#: src/Form/SiteSettingsFieldset.php:37
-msgid "Resource class"
-msgstr "Classe de ressource"
-
-#: src/Form/SiteSettingsFieldset.php:50
-msgid "Twitter domain"
-msgstr "Domaine Twitter"
 
 #: src/Form/SiteSettingsFieldset.php:61
 msgid "Twitter site"
 msgstr "Site Twitter"
 
-#: src/Form/SiteSettingsFieldset.php:72
+#: src/Form/SiteSettingsFieldset.php:73
 msgid "Twitter creator account"
 msgstr "Compte auteur Twitter"
 
-#: src/Form/SiteSettingsFieldset.php:84
+#: src/Form/SiteSettingsFieldset.php:86
+msgid "Author of the resources"
+msgstr "Auteur des ressources"
+
+#: src/Form/SiteSettingsFieldset.php:93 src/Form/SiteSettingsFieldset.php:108
+#: src/Form/SiteSettingsFieldset.php:124
+msgid "Select a property…"
+msgstr "Choisir une propriété…"
+
+#: src/Form/SiteSettingsFieldset.php:101
+msgid "Rights of the resources"
+msgstr "Droits des ressources"
+
+#: src/Form/SiteSettingsFieldset.php:116
+msgid "Date of the documents"
+msgstr "Date des documents"
+
+#: src/Form/SiteSettingsFieldset.php:117
+msgid ""
+"The date is output as date of publication for the search engines, only when "
+"it is formatted as year, month, day or date time (ISO 8601). The dates of "
+"creation and modification of the records are not used, because they are "
+"rarely the date of the document."
+msgstr ""
+"La date est indiquée comme date de publication pour les moteurs de "
+"recherche, seulement si elle est au format année, mois, jour ou date et "
+"heure (ISO 8601). Les dates de création et de modification des notices ne "
+"sont pas utilisées, car elles sont rarement la date du document."
+
+#: src/Form/SiteSettingsFieldset.php:132
+msgid "Append tags for citation of items (Google Scholar, Zotero, Dublin Core)"
+msgstr ""
+"Ajouter les balises de citation des contenus (Google Scholar, Zotero, Dublin "
+"Core)"
+
+#: src/Form/SiteSettingsFieldset.php:133
+msgid ""
+"The tags of Highwire Press (citation_title, citation_author, "
+"citation_pdf_url, etc.) and the values of Dublin Core are added to the pages "
+"of items. The authors are the values of the property set above, else "
+"dcterms:creator. A tag appended by another module, for example Resource "
+"Meta, is not duplicated."
+msgstr ""
+"Les balises de Highwire Press (citation_title, citation_author, "
+"citation_pdf_url, etc.) et les valeurs Dublin Core sont ajoutées aux pages "
+"des contenus. Les auteurs sont les valeurs de la propriété définie ci-dessus, "
+"sinon dcterms:creator. Une balise déjà ajoutée par un autre module, par "
+"exemple Resource Meta, n’est pas dupliquée."
+
+#: src/Form/SiteSettingsFieldset.php:144
+msgid "Append structured data (schema.org)"
+msgstr "Ajouter les données structurées (schema.org)"
+
+#: src/Form/SiteSettingsFieldset.php:145
+msgid ""
+"The data are appended as json-ld to the pages of resources and of the site, "
+"with the same values than the other tags. The type is set from the resource "
+"class, for example Book or ImageObject, else CreativeWork. They are skipped "
+"when another module appends data of schema.org."
+msgstr ""
+"Les données sont ajoutées en json-ld aux pages des ressources et du site, "
+"avec les mêmes valeurs que les autres balises. Le type est défini selon la "
+"classe de la ressource, par exemple Book ou ImageObject, sinon CreativeWork. "
+"Elles sont ignorées quand un autre module ajoute des données schema.org."
+
+#: src/Form/SiteSettingsFieldset.php:157
+msgid "Parameters of the lists not to index"
+msgstr "Paramètres des listes à ne pas indexer"
+
+#: src/Form/SiteSettingsFieldset.php:158
+msgid ""
+"A list with one of these parameters in its url is marked \"noindex, follow\" "
+"for the search engines, for example a full text search or a sorted list. The "
+"lists filtered by a property, a class or an item set are indexed when their "
+"parameters are not set here. Leave empty to index all lists."
+msgstr ""
+"Une liste dont l’url contient l’un de ces paramètres est marquée « noindex, "
+"follow » pour les moteurs de recherche, par exemple une recherche plein "
+"texte ou une liste triée. Les listes filtrées par une propriété, une classe "
+"ou une collection restent indexées si leurs paramètres ne sont pas indiqués "
+"ici. Laisser vide pour indexer toutes les listes."
+
+#: src/Form/SiteSettingsFieldset.php:172
 msgid "Image to use"
 msgstr "Image à utiliser"
 
-#: src/Form/SiteSettingsFieldset.php:86
+#: src/Form/SiteSettingsFieldset.php:174
 msgid "No media"
 msgstr "Pas de média"
 
-#: src/Form/SiteSettingsFieldset.php:87
+#: src/Form/SiteSettingsFieldset.php:175
 msgid "Selected asset below"
 msgstr "Image ci-dessous"
 
-#: src/Form/SiteSettingsFieldset.php:88
+#: src/Form/SiteSettingsFieldset.php:176
 msgid "Resource thumbnail or selected asset for page"
 msgstr "Vignette de la ressource ou image ci-dessous"
 
-#: src/Form/SiteSettingsFieldset.php:89
+#: src/Form/SiteSettingsFieldset.php:177
 msgid "Resource thumbnail or first image"
 msgstr "Vignette de la ressource ou première image"
 
-#: src/Form/SiteSettingsFieldset.php:101
+#: src/Form/SiteSettingsFieldset.php:190
 msgid "Default image"
 msgstr "Image par défaut"
 
-#: src/Form/SiteSettingsFieldset.php:111
+#: src/Form/SiteSettingsFieldset.php:201
 msgid "Derivative type"
 msgstr "Fchiers dérivés"
 
-#: src/Form/SiteSettingsFieldset.php:112
+#: src/Form/SiteSettingsFieldset.php:202
 msgid "When a thumbnail exists, the size is not taken in account."
 msgstr "Quand une vignette est définie, la taille n’est pas prise en compte."
 
-#: src/Form/SiteSettingsFieldset.php:115
+#: src/Form/SiteSettingsFieldset.php:205
 msgid "Large"
 msgstr "Large"
 
-#: src/Form/SiteSettingsFieldset.php:117
+#: src/Form/SiteSettingsFieldset.php:207
 msgid "Square"
 msgstr "Carré"
+
+#~ msgid "Twitter domain"
+#~ msgstr "Domaine Twitter"
+
+#, php-format
+#~ msgid "This module requires the module \"%s\"."
+#~ msgstr "Ce module requiert le module \"%s\"."
+
+#, php-format
+#~ msgid "This module requires modules \"%s\"."
+#~ msgstr "Ce module requiert les modules \"%s\"."
+
+#~ msgid "This module has resources that connot be installed."
+#~ msgstr "Ce module a des ressources qui ne peuvent pas être installées."
+
+#, php-format
+#~ msgid ""
+#~ "The module \"%s\" was automatically deactivated because the dependencies "
+#~ "are unavailable."
+#~ msgstr ""
+#~ "Le module \"%s\" a été automatiquement désactivé car ses dépendances ne "
+#~ "sont plus disponibles."
+
+#~ msgid "Resource class"
+#~ msgstr "Classe de ressource"

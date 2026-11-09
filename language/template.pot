@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-01 00:00+0000\n"
+"POT-Creation-Date: 2026-11-09 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,95 +17,156 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Generic/AbstractModule.php:66
+#: data/scripts/upgrade.php:31 Module.php:66
 #, php-format
-msgid "This module requires the module \"%s\"."
+msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:73
-#, php-format
-msgid "This module requires modules \"%s\"."
+#: data/scripts/upgrade.php:35
+msgid "Missing requirement. Unable to upgrade."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:80
-msgid "This module has resources that connot be installed."
-msgstr ""
-
-#: src/Generic/AbstractModule.php:707
-#, php-format
+#: data/scripts/upgrade.php:62
 msgid ""
-"The module \"%s\" was automatically deactivated because the dependencies are "
-"unavailable."
+"The meta tags were fixed: the Twitter accounts are output only when they are "
+"set, the card is large for large images and the description is shortened to "
+"200 characters."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:14
+#: data/scripts/upgrade.php:67
+msgid ""
+"The settings of the module are displayed again in the site settings. New "
+"settings allow to set the author and the rights of the resources. The size, "
+"the type and the alternative text of the image are added, the locale uses "
+"the format of Open Graph and the duplicate tags of the module Sharing are "
+"removed. A canonical link is added, and the searches are not indexed by the "
+"search engines. The date of the documents can be set, the links to the other "
+"languages are added and options add the tags for citation and the structured "
+"data of schema.org. The setting \"Twitter domain\" was removed."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:15 src/Form/SiteSettingsFieldset.php:18
 msgid "Meta Tags"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:23
+#: src/Form/SiteSettingsFieldset.php:32
 msgid "Append Open Graph and Twitter tags"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:34
+#: src/Form/SiteSettingsFieldset.php:44
 msgid "Open Graph type"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:46
 msgid "Simple og:type"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:37
-msgid "Resource class"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:50
-msgid "Twitter domain"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:61
 msgid "Twitter site"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:72
+#: src/Form/SiteSettingsFieldset.php:73
 msgid "Twitter creator account"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:84
-msgid "Image to use"
-msgstr ""
-
 #: src/Form/SiteSettingsFieldset.php:86
-msgid "No media"
+msgid "Author of the resources"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:87
-msgid "Selected asset below"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:88
-msgid "Resource thumbnail or selected asset for page"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:89
-msgid "Resource thumbnail or first image"
+#: src/Form/SiteSettingsFieldset.php:93 src/Form/SiteSettingsFieldset.php:108
+#: src/Form/SiteSettingsFieldset.php:124
+msgid "Select a property…"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:101
-msgid "Default image"
+msgid "Rights of the resources"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:111
-msgid "Derivative type"
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:112
-msgid "When a thumbnail exists, the size is not taken in account."
-msgstr ""
-
-#: src/Form/SiteSettingsFieldset.php:115
-msgid "Large"
+#: src/Form/SiteSettingsFieldset.php:116
+msgid "Date of the documents"
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:117
+msgid ""
+"The date is output as date of publication for the search engines, only when "
+"it is formatted as year, month, day or date time (ISO 8601). The dates of "
+"creation and modification of the records are not used, because they are "
+"rarely the date of the document."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:132
+msgid "Append tags for citation of items (Google Scholar, Zotero, Dublin Core)"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:133
+msgid ""
+"The tags of Highwire Press (citation_title, citation_author, "
+"citation_pdf_url, etc.) and the values of Dublin Core are added to the pages "
+"of items. The authors are the values of the property set above, else "
+"dcterms:creator. A tag appended by another module, for example Resource "
+"Meta, is not duplicated."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:144
+msgid "Append structured data (schema.org)"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:145
+msgid ""
+"The data are appended as json-ld to the pages of resources and of the site, "
+"with the same values than the other tags. The type is set from the resource "
+"class, for example Book or ImageObject, else CreativeWork. They are skipped "
+"when another module appends data of schema.org."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:157
+msgid "Parameters of the lists not to index"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:158
+msgid ""
+"A list with one of these parameters in its url is marked \"noindex, follow\" "
+"for the search engines, for example a full text search or a sorted list. The "
+"lists filtered by a property, a class or an item set are indexed when their "
+"parameters are not set here. Leave empty to index all lists."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:172
+msgid "Image to use"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:174
+msgid "No media"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:175
+msgid "Selected asset below"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:176
+msgid "Resource thumbnail or selected asset for page"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:177
+msgid "Resource thumbnail or first image"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:190
+msgid "Default image"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:201
+msgid "Derivative type"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:202
+msgid "When a thumbnail exists, the size is not taken in account."
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:205
+msgid "Large"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:207
 msgid "Square"
 msgstr ""
