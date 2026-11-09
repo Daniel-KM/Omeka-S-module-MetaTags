@@ -3,6 +3,11 @@
 namespace MetaTags;
 
 return [
+    'form_elements' => [
+        'invokables' => [
+            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
+        ],
+    ],
     'translator' => [
         'translation_file_patterns' => [
             [
