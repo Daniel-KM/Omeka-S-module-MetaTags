@@ -187,7 +187,7 @@ class Module extends AbstractModule
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 
-        $this->commonMeta($view, 'website');
+        $this->commonMeta($view, 'website', true);
         $site = $view->site;
 
         if ($site && $value = $site->title()) {
@@ -288,7 +288,7 @@ class Module extends AbstractModule
         $view = $event->getTarget();
         $headMeta = $view->headMeta();
 
-        $this->commonMeta($view, 'website');
+        $this->commonMeta($view, 'website', true);
 
         $site = $view->site;
         if ($site && $value = $site->title()) {
@@ -341,8 +341,9 @@ class Module extends AbstractModule
     /**
      * @param PhpRenderer $view
      * @param string|\Omeka\Api\Representation\ResourceClassRepresentation $ogType
+     * @param bool $withQuery Keep the query of the url, for the lists.
      */
-    protected function commonMeta(PhpRenderer $view, $ogType = 'website'): void
+    protected function commonMeta(PhpRenderer $view, $ogType = 'website', bool $withQuery = false): void
     {
         $siteSettings = $this->getServiceLocator()->get('Omeka\Settings\Site');
         $headMeta = $view->headMeta();
@@ -368,7 +369,8 @@ class Module extends AbstractModule
         if ($value = $this->ogLocale((string) ($siteSettings->get('locale') ?: $view->setting('locale')))) {
             $headMeta->appendProperty('og:locale', $value);
         }
-        if ($url = $this->currentUrl($view)) {
+        $query = $withQuery ? $this->currentQuery() : [];
+        if ($url = $this->currentUrl($view, $query)) {
             $headMeta->appendProperty('og:url', $url);
         }
 
@@ -581,14 +583,33 @@ class Module extends AbstractModule
     }
 
     /**
-     * Get the canonical url of the current page, without the query.
+     * Get the query of the current page, without the empty values.
+     *
+     * The query of the uri is used, because the controllers of the lists add
+     * the default sort and page to the parameters.
+     */
+    protected function currentQuery(): array
+    {
+        $request = $this->getServiceLocator()->get('Request');
+        if (!$request instanceof \Laminas\Http\Request) {
+            return [];
+        }
+        parse_str((string) $request->getUri()->getQuery(), $query);
+        if (($query['page'] ?? null) === '1') {
+            unset($query['page']);
+        }
+        return array_filter($query, fn ($v) => $v !== '' && $v !== []);
+    }
+
+    /**
+     * Get the canonical url of the current page, with the query for the lists.
      *
      * The request uri is not used, since it is not available outside of http.
      */
-    protected function currentUrl(PhpRenderer $view): ?string
+    protected function currentUrl(PhpRenderer $view, array $query = []): ?string
     {
         try {
-            $url = $view->url(null, [], [], true);
+            $url = $view->url(null, [], $query ? ['query' => $query] : [], true);
         } catch (\Throwable $e) {
             return null;
         }
