@@ -31,7 +31,8 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
         $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
         'Common', '3.4.96'
     );
-    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    $messenger->addError($message);
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
 }
 
 if (version_compare($oldVersion, '3.3.0.4', '<')) {
@@ -48,4 +49,22 @@ if (version_compare($oldVersion, '3.3.0.4', '<')) {
         }
         $siteSettings->delete('metatags_enable_media');
     }
+}
+
+if (version_compare($oldVersion, '3.4.7', '<')) {
+    // The tag "twitter:domain" is no longer read by X.
+    $connection->executeStatement(
+        'DELETE FROM `site_setting` WHERE `id` = :id',
+        ['id' => 'metatags_twitter_domain']
+    );
+
+    $message = new PsrMessage(
+        'The meta tags were fixed: the Twitter accounts are output only when they are set, the card is large for large images and the description is shortened to 200 characters.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'The settings of the module are displayed again in the site settings. New settings allow to set the author and the rights of the resources. The size, the type and the alternative text of the image are added, the locale uses the format of Open Graph and the duplicate tags of the module Sharing are removed. A canonical link is added, and the searches are not indexed by the search engines. The date of the documents can be set, the links to the other languages are added and options add the tags for citation and the structured data of schema.org. The setting "Twitter domain" was removed.' // @translate
+    );
+    $messenger->addSuccess($message);
 }
