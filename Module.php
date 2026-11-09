@@ -270,8 +270,10 @@ class Module extends AbstractModule
             $headMeta->appendName('twitter:description', $summary);
         }
 
+        // The main image is the one of the block of metadata, else the first
+        // image of the blocks.
         if ($mediaMode === 'thumbnail'
-            && ($thumbnail = $pageMetadata('main_image', $page))
+            && ($thumbnail = $pageMetadata('main_image', $page) ?: $pageMetadata('first_image', $page))
             && ($image = $this->imageData($thumbnail, $siteSettings->get('metatags_media_derivative', 'large')))
         ) {
             $this->appendImage($view, $image);
