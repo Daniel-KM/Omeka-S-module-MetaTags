@@ -389,7 +389,6 @@ class Module extends AbstractModule
         // and some use the xml standard way (xmlns:og).
         $view->htmlElement('html')->appendAttribute('prefix', 'og: https://ogp.me/ns#');
 
-        $derivative = $siteSettings->get('metatags_media_derivative', 'large');
         if (is_object($ogType)) {
             $vocabulary = $ogType->vocabulary();
             $view->htmlElement('html')
@@ -418,7 +417,8 @@ class Module extends AbstractModule
             $headMeta->appendName('robots', 'noindex, follow');
         }
 
-        $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary_large_image' : 'summary');
+        // The card is a large one only when a large image is appended.
+        $headMeta->appendName('twitter:card', 'summary');
         if ($value = $siteSettings->get('metatags_twitter_site', '')) {
             $headMeta->appendName('twitter:site', $value);
         }
@@ -476,6 +476,10 @@ class Module extends AbstractModule
     protected function appendImage(PhpRenderer $view, array $image): void
     {
         $headMeta = $view->headMeta();
+        $derivative = $this->getServiceLocator()->get('Omeka\Settings\Site')->get('metatags_media_derivative', 'large');
+        if (in_array($derivative, ['original', 'large'])) {
+            $headMeta->setName('twitter:card', 'summary_large_image');
+        }
         $headMeta->appendProperty('og:image', $image['url']);
         if (!empty($image['type'])) {
             $headMeta->appendProperty('og:image:type', $image['type']);
