@@ -228,13 +228,10 @@ class Module extends AbstractModule
                 return;
             }
             if ($mediaMode === 'thumbnail'
-                && $value = $this->mainImage($page)
+                && ($value = $this->mainImage($page))
+                && ($image = $this->imageData($value, $siteSettings->get('metatags_media_derivative', 'large')))
             ) {
-                $derivative = $siteSettings->get('metatags_media_derivative', 'large');
-                $value = $this->thumbnailUrl($value, $derivative);
-                $headMeta->appendProperty('og:image', $value);
-                $headMeta->appendName('twitter:image', $value);
-                // TODO Add size and media type of the image.
+                $this->appendImage($view, $image);
                 return;
             }
             $this->appendThumbnailDefault($view);
@@ -249,13 +246,10 @@ class Module extends AbstractModule
         }
 
         if ($mediaMode === 'thumbnail'
-            && $thumbnail = $pageMetadata('main_image', $page)
+            && ($thumbnail = $pageMetadata('main_image', $page))
+            && ($image = $this->imageData($thumbnail, $siteSettings->get('metatags_media_derivative', 'large')))
         ) {
-            $derivative = $siteSettings->get('metatags_media_derivative', 'large');
-            $thumbnail = $this->thumbnailUrl($thumbnail, $derivative);
-            $headMeta->appendProperty('og:image', $thumbnail);
-            $headMeta->appendName('twitter:image', $thumbnail);
-            // TODO Add size and media type of the image.
+            $this->appendImage($view, $image);
         } elseif ($mediaMode !== 'none') {
             $this->appendThumbnailDefault($view);
         }
@@ -364,12 +358,9 @@ class Module extends AbstractModule
         if ($mediaMode === 'thumbnail'
             || ($mediaMode === 'thumbnail_static' && !($representation instanceof \Omeka\Api\Representation\SitePageRepresentation))
         ) {
-            $thumbnail = $this->thumbnailUrl($representation);
-            if ($thumbnail) {
-                $headMeta = $view->headMeta();
-                $headMeta->appendProperty('og:image', $thumbnail);
-                $headMeta->appendName('twitter:image', $thumbnail);
-                // TODO Add size and media type of the image.
+            $image = $this->imageData($representation, $siteSettings->get('metatags_media_derivative', 'large'));
+            if ($image) {
+                $this->appendImage($view, $image);
                 return;
             }
         }
@@ -392,37 +383,104 @@ class Module extends AbstractModule
             // The asset may have been deleted.
             return;
         }
-        $value = $asset->assetUrl();
-        $headMeta = $view->headMeta();
-        $headMeta->appendProperty('og:image', $value);
-        $headMeta->appendName('twitter:image', $value);
+        $image = $this->imageData($asset);
+        if ($image) {
+            $this->appendImage($view, $image);
+        }
     }
 
     /**
-     * @param AbstractRepresentation $representation
-     * @param string $type
-     * @return string|null
+     * @param array $image Keys "url", "type", "width", "height" and "alt".
      */
-    protected function thumbnailUrl(AbstractRepresentation $representation, $type = 'large'): ?string
+    protected function appendImage(PhpRenderer $view, array $image): void
     {
-        if ($representation instanceof AssetRepresentation) {
-            return $representation->assetUrl();
+        $headMeta = $view->headMeta();
+        $headMeta->appendProperty('og:image', $image['url']);
+        if (!empty($image['type'])) {
+            $headMeta->appendProperty('og:image:type', $image['type']);
+        }
+        if (!empty($image['width']) && !empty($image['height'])) {
+            $headMeta->appendProperty('og:image:width', (string) $image['width']);
+            $headMeta->appendProperty('og:image:height', (string) $image['height']);
+        }
+        if (!empty($image['alt'])) {
+            $headMeta->appendProperty('og:image:alt', $image['alt']);
+        }
+        $headMeta->appendName('twitter:image', $image['url']);
+        if (!empty($image['alt'])) {
+            $headMeta->appendName('twitter:image:alt', $image['alt']);
+        }
+    }
+
+    /**
+     * Get the url, the media type, the size and the alternative text of image.
+     *
+     * The fallback thumbnails are skipped. The original is used only when it is
+     * an image supported by the social networks, else the large thumbnail.
+     *
+     * @return array|null Keys "url", "type", "width", "height" and "alt".
+     */
+    protected function imageData(AbstractRepresentation $representation, string $derivative = 'large'): ?array
+    {
+        $asset = $representation instanceof AssetRepresentation
+            ? $representation
+            : $representation->thumbnail();
+        if ($asset) {
+            return $this->completeImageData([
+                'url' => $asset->assetUrl(),
+                'type' => $asset->mediaType(),
+                'alt' => method_exists($asset, 'altText') ? (string) $asset->altText() : '',
+            ], 'asset/' . $asset->filename());
         }
 
-        $thumbnail = $representation->thumbnail();
-        if ($thumbnail) {
-            return $thumbnail->assetUrl();
-        }
-
-        $primaryMedia = $representation->primaryMedia();
-        if (!$primaryMedia) {
+        $media = $representation->primaryMedia();
+        if (!$media) {
             return null;
         }
-        // The fallback uri is not absolute. Anyway, don't return it.
-        $url = $primaryMedia->thumbnailUrl($type);
-        return substr($url, 0, 4) === 'http'
-            ? $url
-            : null;
+
+        $alt = method_exists($media, 'altTextResolved') ? (string) $media->altTextResolved() : '';
+        if ($derivative === 'original'
+            && $media->hasOriginal()
+            && in_array($media->mediaType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+        ) {
+            return $this->completeImageData([
+                'url' => $media->originalUrl(),
+                'type' => $media->mediaType(),
+                'alt' => $alt,
+            ], 'original/' . $media->filename());
+        }
+
+        if (!$media->hasThumbnails()) {
+            return null;
+        }
+        $derivative = $derivative === 'original' ? 'large' : $derivative;
+        return $this->completeImageData([
+            'url' => $media->thumbnailUrl($derivative),
+            'type' => 'image/jpeg',
+            'alt' => $alt,
+        ], $derivative . '/' . $media->storageId() . '.jpg');
+    }
+
+    /**
+     * Add the size of the image when the file is stored locally.
+     */
+    protected function completeImageData(array $image, string $storagePath): ?array
+    {
+        // A relative url cannot be used by the social networks.
+        if (substr((string) $image['url'], 0, 4) !== 'http') {
+            return null;
+        }
+        $store = $this->getServiceLocator()->get('Omeka\File\Store');
+        if ($store instanceof \Omeka\File\Store\Local) {
+            $path = $store->getLocalPath($storagePath);
+            $size = is_file($path) && is_readable($path) ? @getimagesize($path) : false;
+            if ($size) {
+                $image['width'] = $size[0];
+                $image['height'] = $size[1];
+                $image['type'] = $size['mime'] ?: $image['type'];
+            }
+        }
+        return $image;
     }
 
     /**
