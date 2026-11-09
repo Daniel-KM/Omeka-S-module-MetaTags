@@ -14,6 +14,7 @@ use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractRepresentation;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Api\Representation\AssetRepresentation;
+use Omeka\Api\Representation\ItemRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Module\AbstractModule;
 
@@ -178,6 +179,10 @@ class Module extends AbstractModule
         $rights = $siteSettings->get('metatags_rights', '');
         if ($rights && $value = $this->valueTexts($resource, $rights)) {
             $headMeta->appendName('copyright', $value);
+        }
+
+        if ($resource instanceof ItemRepresentation && $siteSettings->get('metatags_citation', false)) {
+            $this->appendCitation($view, $resource, $author ?: 'dcterms:creator', $dateTerm);
         }
     }
 
@@ -544,11 +549,79 @@ class Module extends AbstractModule
      */
     protected function valueTexts(AbstractResourceEntityRepresentation $resource, string $term): string
     {
+        return implode(', ', $this->valueList($resource, $term));
+    }
+
+    /**
+     * Get the list of the distinct values of a property.
+     */
+    protected function valueList(AbstractResourceEntityRepresentation $resource, string $term): array
+    {
         $texts = array_map(
             fn ($v) => (string) ($v->valueResource() ? $v->valueResource()->displayTitle() : ($v->value() ?? $v->uri())),
             $resource->value($term, ['all' => true])
         );
-        return implode(', ', array_unique(array_filter(array_map('trim', $texts), 'strlen')));
+        return array_values(array_unique(array_filter(array_map('trim', $texts), 'strlen')));
+    }
+
+    /**
+     * Append the tags for the citation of a document.
+     *
+     * The tags of Highwire Press are used by Google Scholar and by the managers
+     * of references (Zotero, Mendeley). The tags of Dublin Core are used by
+     * other harvesters. Each value is a distinct tag.
+     *
+     * @see https://scholar.google.com/intl/en/scholar/inclusion.html#indexing
+     * @see https://www.dublincore.org/specifications/dublin-core/dc-html/
+     */
+    protected function appendCitation(PhpRenderer $view, ItemRepresentation $item, string $authorTerm, string $dateTerm): void
+    {
+        $headMeta = $view->headMeta();
+
+        $headMeta->appendName('citation_title', (string) $item->displayTitle());
+        foreach ($this->valueList($item, $authorTerm) as $value) {
+            $headMeta->appendName('citation_author', $value);
+        }
+        // Google Scholar requires the format "2009/05/30" or "2009".
+        $date = $this->isoDate($item, $dateTerm ?: 'dcterms:issued') ?? $this->isoDate($item, 'dcterms:date');
+        if ($date) {
+            $headMeta->appendName('citation_publication_date', strtr(strtok(ltrim($date, '-'), 'T'), '-', '/'));
+        }
+        $map = [
+            'dcterms:publisher' => 'citation_publisher',
+            'dcterms:isPartOf' => 'citation_journal_title',
+            'dcterms:language' => 'citation_language',
+            'bibo:doi' => 'citation_doi',
+            'bibo:isbn' => 'citation_isbn',
+            'bibo:issn' => 'citation_issn',
+            'bibo:volume' => 'citation_volume',
+            'bibo:issue' => 'citation_issue',
+            'bibo:pageStart' => 'citation_firstpage',
+            'bibo:pageEnd' => 'citation_lastpage',
+        ];
+        foreach ($map as $term => $name) {
+            foreach ($this->valueList($item, $term) as $value) {
+                $headMeta->appendName($name, $value);
+            }
+        }
+        foreach ($item->media() as $media) {
+            if ($media->mediaType() === 'application/pdf' && $media->hasOriginal()) {
+                $headMeta->appendName('citation_pdf_url', $media->originalUrl());
+                break;
+            }
+        }
+
+        // The values of Dublin Core are output with the prefix "DCTERMS".
+        $view->headLink(['rel' => 'schema.DCTERMS', 'href' => 'http://purl.org/dc/terms/']);
+        foreach ($item->values() as $term => $propertyData) {
+            if (strpos($term, 'dcterms:') !== 0) {
+                continue;
+            }
+            $name = 'DCTERMS.' . substr($term, 8);
+            foreach ($this->valueList($item, $term) as $value) {
+                $headMeta->appendName($name, $value);
+            }
+        }
     }
 
     /**

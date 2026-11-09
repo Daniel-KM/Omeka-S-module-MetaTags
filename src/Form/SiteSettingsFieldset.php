@@ -124,6 +124,18 @@ class SiteSettingsFieldset extends Fieldset
                     'data-placeholder' => 'Select a property…', // @translate
                 ],
             ])
+            ->add([
+                'name' => 'metatags_citation',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Append tags for citation of items (Google Scholar, Zotero, Dublin Core)', // @translate
+                    'info' => 'The tags of Highwire Press (citation_title, citation_author, citation_pdf_url, etc.) and the values of Dublin Core are added to the pages of items. The authors are the values of the property set above, else dcterms:creator.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'metatags_citation',
+                ],
+            ])
 
             ->add([
                 'name' => 'metatags_noindex_params',

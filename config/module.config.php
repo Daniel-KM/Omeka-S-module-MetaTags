@@ -27,6 +27,7 @@ return [
             'metatags_author' => '',
             'metatags_rights' => '',
             'metatags_date' => '',
+            'metatags_citation' => false,
             'metatags_noindex_params' => [
                 'fulltext_search',
                 'sort_by',
