@@ -134,15 +134,12 @@ class Module extends AbstractModule
             $ogType = $resource->resourceClass();
         }
         if (empty($ogType)) {
+            // Only "video.other" is a standard type of Open Graph for a media:
+            // "image" and "audio" are not types, and "music.song" is music.
             $primary = $resource->primaryMedia();
-            if ($primary) {
-                $mediaType = $primary->mediaType();
-                $main = strtok((string) $mediaType, '/');
-                $map = ['audio' => 'audio', 'video' => 'video', 'image' => 'image'];
-                $ogType = $map[$main] ?? 'article';
-            } else {
-                $ogType = 'article';
-            }
+            $ogType = $primary && strtok((string) $primary->mediaType(), '/') === 'video'
+                ? 'video.other'
+                : 'article';
         }
 
         $this->commonMeta($view, $ogType);
