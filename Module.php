@@ -330,6 +330,8 @@ class Module extends AbstractModule
 
     /**
      * Keep only the first Open Graph and Twitter tags of each name.
+     *
+     * The alternate locales are multiple, so they are kept.
      */
     public function handleDuplicateTags(Event $event): void
     {
@@ -345,7 +347,7 @@ class Module extends AbstractModule
         $items = [];
         foreach ($container->getArrayCopy() as $item) {
             $key = (string) ($item->{$item->type} ?? '');
-            if (preg_match('~^(?:og|twitter):~', $key)) {
+            if ($key !== 'og:locale:alternate' && preg_match('~^(?:og|twitter):~', $key)) {
                 if (isset($keys[$key])) {
                     continue;
                 }
@@ -391,6 +393,7 @@ class Module extends AbstractModule
         if ($url = $this->currentUrl($view, $query)) {
             $headMeta->appendProperty('og:url', $url);
             $view->headLink(['rel' => 'canonical', 'href' => $url]);
+            $this->appendAlternateLanguages($view, $url, $query);
         }
         // The searches and the sorted lists duplicate the main list.
         $noindex = $siteSettings->get('metatags_noindex_params', ['fulltext_search', 'sort_by', 'sort_order', 'per_page']);
@@ -708,6 +711,62 @@ class Module extends AbstractModule
         return $url && substr($url, 0, 4) !== 'http'
             ? $view->serverUrl() . $url
             : $url;
+    }
+
+    /**
+     * Append the links to the current page in the other languages.
+     *
+     * The groups of sites by language are managed by the module
+     * Internationalisation. The page of a site without translation is skipped,
+     * because the module links it to the current page.
+     */
+    protected function appendAlternateLanguages(PhpRenderer $view, string $url, array $query): void
+    {
+        $plugins = $view->getHelperPluginManager();
+        if (!$plugins->has('languageList')) {
+            return;
+        }
+
+        $site = $view->site;
+        $currentSlug = $site ? $site->slug() : null;
+        $currentPath = strtok($url, '?');
+        $serverUrl = $view->serverUrl();
+
+        $links = [];
+        foreach ($plugins->get('languageList')('current_page') as $entry) {
+            if (empty($entry['url']) || empty($entry['locale'])) {
+                continue;
+            }
+            if ($entry['site'] === $currentSlug) {
+                $links[(string) $entry['locale']] = $url;
+                continue;
+            }
+            $path = strtok((string) $entry['url'], '?');
+            if (substr($path, 0, 4) !== 'http') {
+                $path = $serverUrl . $path;
+            }
+            if ($path === $currentPath) {
+                continue;
+            }
+            // Same encoding than the router.
+            // @see \Laminas\Uri\Uri::setQuery()
+            $links[(string) $entry['locale']] = $query
+                ? $path . '?' . strtr(http_build_query($query, '', '&'), ['+' => '%20'])
+                : $path;
+        }
+        if (count($links) < 2) {
+            return;
+        }
+
+        $headMeta = $view->headMeta();
+        $currentLocale = $this->ogLocale((string) ($view->siteSetting('locale') ?: $view->setting('locale')));
+        foreach ($links as $locale => $href) {
+            $view->headLink(['rel' => 'alternate', 'hreflang' => strtr($locale, '_', '-'), 'href' => $href]);
+            $ogLocale = $this->ogLocale($locale);
+            if ($ogLocale && $ogLocale !== $currentLocale) {
+                $headMeta->appendProperty('og:locale:alternate', $ogLocale);
+            }
+        }
     }
 
     /**
