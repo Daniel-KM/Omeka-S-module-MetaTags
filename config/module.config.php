@@ -26,6 +26,7 @@ return [
             'metatags_twitter_creator' => '',
             'metatags_author' => '',
             'metatags_rights' => '',
+            'metatags_date' => '',
             'metatags_noindex_params' => [
                 'fulltext_search',
                 'sort_by',

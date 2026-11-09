@@ -158,6 +158,12 @@ class Module extends AbstractModule
             $headMeta->appendName('twitter:description', $summary);
         }
 
+        // The dates of the record are rarely the date of the document.
+        $dateTerm = $siteSettings->get('metatags_date', '');
+        if ($dateTerm && $date = $this->isoDate($resource, $dateTerm)) {
+            $headMeta->appendProperty('article:published_time', $date);
+        }
+
         $this->appendThumbnail($resource, $view);
 
         if ($value = $this->valueTexts($resource, 'dcterms:subject')) {
@@ -230,6 +236,12 @@ class Module extends AbstractModule
         // Note: the head title (site title) is already added by Omeka.
         $headMeta->appendProperty('og:title', $title);
         $headMeta->appendName('twitter:title', $title);
+
+        // The dates of a page are the dates of its publication.
+        $headMeta->appendProperty('article:published_time', $page->created()->format(DATE_ATOM));
+        if ($modified = $page->modified()) {
+            $headMeta->appendProperty('article:modified_time', $modified->format(DATE_ATOM));
+        }
 
         $mediaMode = $siteSettings->get('metatags_media_mode', 'thumbnail');
 
@@ -623,6 +635,23 @@ class Module extends AbstractModule
         return $url && substr($url, 0, 4) !== 'http'
             ? $view->serverUrl() . $url
             : $url;
+    }
+
+    /**
+     * Get the first value of a property that is a date in the format ISO 8601.
+     *
+     * A date that is not a year, a month, a day or a date time, for example
+     * "16th century" or "ca. 1890", is skipped, so no wrong date is output.
+     */
+    protected function isoDate(AbstractResourceEntityRepresentation $resource, string $term): ?string
+    {
+        foreach ($resource->value($term, ['all' => true]) as $value) {
+            $date = trim((string) $value->value());
+            if (preg_match('~^-?\d{4}(?:-\d{2}(?:-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:?\d{2})?)?)?)?$~', $date)) {
+                return $date;
+            }
+        }
+        return null;
     }
 
     /**

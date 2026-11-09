@@ -108,6 +108,22 @@ class SiteSettingsFieldset extends Fieldset
                     'data-placeholder' => 'Select a property…', // @translate
                 ],
             ])
+            ->add([
+                'name' => 'metatags_date',
+                'type' => CommonElement\OptionalPropertySelect::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Date of the documents', // @translate
+                    'info' => 'The date is output as date of publication for the search engines, only when it is formatted as year, month, day or date time (ISO 8601). The dates of creation and modification of the records are not used, because they are rarely the date of the document.', // @translate
+                    'empty_option' => '',
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'metatags_date',
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select a property…', // @translate
+                ],
+            ])
 
             ->add([
                 'name' => 'metatags_noindex_params',
