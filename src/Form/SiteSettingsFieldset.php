@@ -130,7 +130,7 @@ class SiteSettingsFieldset extends Fieldset
                 'options' => [
                     'element_group' => 'meta_tags',
                     'label' => 'Append tags for citation of items (Google Scholar, Zotero, Dublin Core)', // @translate
-                    'info' => 'The tags of Highwire Press (citation_title, citation_author, citation_pdf_url, etc.) and the values of Dublin Core are added to the pages of items. The authors are the values of the property set above, else dcterms:creator. The values of Dublin Core are skipped when the module Resource Meta is active.', // @translate
+                    'info' => 'The tags of Highwire Press (citation_title, citation_author, citation_pdf_url, etc.) and the values of Dublin Core are added to the pages of items. The authors are the values of the property set above, else dcterms:creator. A tag appended by another module, for example Resource Meta, is not duplicated.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'metatags_citation',
@@ -142,7 +142,7 @@ class SiteSettingsFieldset extends Fieldset
                 'options' => [
                     'element_group' => 'meta_tags',
                     'label' => 'Append structured data (schema.org)', // @translate
-                    'info' => 'The data are appended as json-ld to the pages of resources and of the site, with the same values than the other tags. The type is set from the resource class, for example Book or ImageObject, else CreativeWork. They are skipped when the module Resource Meta is active, because it manages them with a full mapping.', // @translate
+                    'info' => 'The data are appended as json-ld to the pages of resources and of the site, with the same values than the other tags. The type is set from the resource class, for example Book or ImageObject, else CreativeWork. They are skipped when another module appends data of schema.org.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'metatags_jsonld',

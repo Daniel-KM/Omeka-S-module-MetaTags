@@ -30,6 +30,13 @@ class Module extends AbstractModule
 
     const NAMESPACE = __NAMESPACE__;
 
+    /**
+     * Ids of the optional tags appended by this module.
+     *
+     * @var array
+     */
+    protected $ownTags = [];
+
     protected function preInstall(): void
     {
         $services = $this->getServiceLocator();
@@ -354,7 +361,9 @@ class Module extends AbstractModule
     /**
      * Keep only the first Open Graph and Twitter tags of each name.
      *
-     * The alternate locales are multiple, so they are kept.
+     * The alternate locales are multiple, so they are kept. The optional tags of
+     * this module (citation, Dublin Core, schema.org) are removed when another
+     * module appends them too.
      */
     public function handleDuplicateTags(Event $event): void
     {
@@ -378,6 +387,39 @@ class Module extends AbstractModule
             }
             $items[] = $item;
         }
+
+        // The optional tags of this module are removed when another module
+        // appends the same ones, for example ResourceMeta, case insensitively.
+        if ($this->ownTags) {
+            $others = [];
+            foreach ($items as $item) {
+                if (!isset($this->ownTags[spl_object_id($item)])) {
+                    $others[mb_strtolower((string) ($item->{$item->type} ?? ''))] = true;
+                }
+            }
+            $items = array_values(array_filter($items, fn ($item) => !isset($this->ownTags[spl_object_id($item)])
+                || !isset($others[mb_strtolower((string) ($item->{$item->type} ?? ''))])));
+
+            // The same for the data of schema.org.
+            $scripts = $view->headScript()->getContainer();
+            $hasOtherSchema = false;
+            foreach ($scripts->getArrayCopy() as $script) {
+                if (!isset($this->ownTags[spl_object_id($script)])
+                    && ($script->type ?? null) === 'application/ld+json'
+                    && strpos((string) ($script->source ?? ''), 'schema.org') !== false
+                ) {
+                    $hasOtherSchema = true;
+                    break;
+                }
+            }
+            if ($hasOtherSchema) {
+                $scripts->exchangeArray(array_values(array_filter(
+                    $scripts->getArrayCopy(),
+                    fn ($script) => !isset($this->ownTags[spl_object_id($script)])
+                )));
+            }
+        }
+
         $container->exchangeArray($items);
     }
 
@@ -596,14 +638,10 @@ class Module extends AbstractModule
 
     /**
      * Check if the data of schema.org should be appended.
-     *
-     * The module ResourceMeta manages them with a full mapping, so they are not
-     * appended when it is active.
      */
     protected function isJsonLdEnabled(): bool
     {
-        return (bool) $this->getServiceLocator()->get('Omeka\Settings\Site')->get('metatags_jsonld', false)
-            && !$this->isModuleActive('ResourceMeta');
+        return (bool) $this->getServiceLocator()->get('Omeka\Settings\Site')->get('metatags_jsonld', false);
     }
 
     /**
@@ -723,7 +761,22 @@ class Module extends AbstractModule
         $data = ['@context' => 'https://schema.org'] + $clean($data);
         // The flags avoid to close the script with a value.
         $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
-        $view->headScript()->appendScript($json, 'application/ld+json', ['noescape' => true]);
+        $headScript = $view->headScript();
+        $headScript->appendScript($json, 'application/ld+json', ['noescape' => true]);
+        $items = $headScript->getContainer()->getArrayCopy();
+        $this->ownTags[spl_object_id(end($items))] = true;
+    }
+
+    /**
+     * Append an optional tag, that is removed if another module appends it.
+     *
+     * @see self::handleDuplicateTags()
+     */
+    protected function appendOwnName(\Laminas\View\Helper\HeadMeta $headMeta, string $name, string $content): void
+    {
+        $headMeta->appendName($name, $content);
+        $items = $headMeta->getContainer()->getArrayCopy();
+        $this->ownTags[spl_object_id(end($items))] = true;
     }
 
     /**
@@ -758,14 +811,14 @@ class Module extends AbstractModule
     {
         $headMeta = $view->headMeta();
 
-        $headMeta->appendName('citation_title', (string) $item->displayTitle());
+        $this->appendOwnName($headMeta, 'citation_title', (string) $item->displayTitle());
         foreach ($this->valueList($item, $authorTerm) as $value) {
-            $headMeta->appendName('citation_author', $value);
+            $this->appendOwnName($headMeta, 'citation_author', $value);
         }
         // Google Scholar requires the format "2009/05/30" or "2009".
         $date = $this->isoDate($item, $dateTerm ?: 'dcterms:issued') ?? $this->isoDate($item, 'dcterms:date');
         if ($date) {
-            $headMeta->appendName('citation_publication_date', strtr(strtok(ltrim($date, '-'), 'T'), '-', '/'));
+            $this->appendOwnName($headMeta, 'citation_publication_date', strtr(strtok(ltrim($date, '-'), 'T'), '-', '/'));
         }
         $map = [
             'dcterms:publisher' => 'citation_publisher',
@@ -781,20 +834,14 @@ class Module extends AbstractModule
         ];
         foreach ($map as $term => $name) {
             foreach ($this->valueList($item, $term) as $value) {
-                $headMeta->appendName($name, $value);
+                $this->appendOwnName($headMeta, $name, $value);
             }
         }
         foreach ($item->media() as $media) {
             if ($media->mediaType() === 'application/pdf' && $media->hasOriginal()) {
-                $headMeta->appendName('citation_pdf_url', $media->originalUrl());
+                $this->appendOwnName($headMeta, 'citation_pdf_url', $media->originalUrl());
                 break;
             }
-        }
-
-        // The module ResourceMeta outputs the values of Dublin Core, so skip
-        // them to avoid duplicates.
-        if ($this->isModuleActive('ResourceMeta')) {
-            return;
         }
 
         // The values of Dublin Core are output with the prefix "DCTERMS".
@@ -805,7 +852,7 @@ class Module extends AbstractModule
             }
             $name = 'DCTERMS.' . substr($term, 8);
             foreach ($this->valueList($item, $term) as $value) {
-                $headMeta->appendName($name, $value);
+                $this->appendOwnName($headMeta, $name, $value);
             }
         }
     }
