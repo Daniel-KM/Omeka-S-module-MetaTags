@@ -335,9 +335,6 @@ class Module extends AbstractModule
         }
 
         $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary_large_image' : 'summary');
-        if ($value = $siteSettings->get('metatags_twitter_domain', '')) {
-            $headMeta->appendName('twitter:domain', $value);
-        }
         if ($value = $siteSettings->get('metatags_twitter_site', '')) {
             $headMeta->appendName('twitter:site', $value);
         }
