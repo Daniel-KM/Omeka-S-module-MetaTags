@@ -375,6 +375,11 @@ class Module extends AbstractModule
             $headMeta->appendProperty('og:url', $url);
             $view->headLink(['rel' => 'canonical', 'href' => $url]);
         }
+        // The searches and the sorted lists duplicate the main list.
+        $noindex = $siteSettings->get('metatags_noindex_params', ['fulltext_search', 'sort_by', 'sort_order', 'per_page']);
+        if ($noindex && array_intersect_key($query, array_flip((array) $noindex))) {
+            $headMeta->appendName('robots', 'noindex, follow');
+        }
 
         $headMeta->appendName('twitter:card', in_array($derivative, ['original', 'large']) ? 'summary_large_image' : 'summary');
         if ($value = $siteSettings->get('metatags_twitter_site', '')) {

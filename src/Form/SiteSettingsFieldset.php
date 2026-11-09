@@ -110,6 +110,21 @@ class SiteSettingsFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'metatags_noindex_params',
+                'type' => CommonElement\ArrayText::class,
+                'options' => [
+                    'element_group' => 'meta_tags',
+                    'label' => 'Parameters of the lists not to index', // @translate
+                    'info' => 'A list with one of these parameters in its url is marked "noindex, follow" for the search engines, for example a full text search or a sorted list. The lists filtered by a property, a class or an item set are indexed when their parameters are not set here. Leave empty to index all lists.', // @translate
+                    'value_separator' => ' ',
+                ],
+                'attributes' => [
+                    'id' => 'metatags_noindex_params',
+                    'placeholder' => 'fulltext_search sort_by sort_order per_page',
+                ],
+            ])
+
+            ->add([
                 'name' => 'metatags_media_mode',
                 'type' => Element\Radio::class,
                 'options' => [
