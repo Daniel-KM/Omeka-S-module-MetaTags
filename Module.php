@@ -91,6 +91,21 @@ class Module extends AbstractModule
             [$this, 'handleSitePages']
         );
 
+        // Remove the duplicate tags appended later by other modules, like
+        // Sharing.
+        foreach ([
+            'Omeka\Controller\Site\Item',
+            'Omeka\Controller\Site\Media',
+            'Omeka\Controller\Site\Page',
+        ] as $controller) {
+            $sharedEventManager->attach(
+                $controller,
+                'view.show.after',
+                [$this, 'handleDuplicateTags'],
+                -100
+            );
+        }
+
         $sharedEventManager->attach(
             \Omeka\Form\SiteSettingsForm::class,
             'form.add_elements',
@@ -293,6 +308,34 @@ class Module extends AbstractModule
         if ($mediaMode !== 'none') {
             $this->appendThumbnailDefault($view);
         }
+    }
+
+    /**
+     * Keep only the first Open Graph and Twitter tags of each name.
+     */
+    public function handleDuplicateTags(Event $event): void
+    {
+        $siteSettings = $this->getServiceLocator()->get('Omeka\Settings\Site');
+        if (!$siteSettings->get('metatags_enabled', true)) {
+            return;
+        }
+
+        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        $view = $event->getTarget();
+        $container = $view->headMeta()->getContainer();
+        $keys = [];
+        $items = [];
+        foreach ($container->getArrayCopy() as $item) {
+            $key = (string) ($item->{$item->type} ?? '');
+            if (preg_match('~^(?:og|twitter):~', $key)) {
+                if (isset($keys[$key])) {
+                    continue;
+                }
+                $keys[$key] = true;
+            }
+            $items[] = $item;
+        }
+        $container->exchangeArray($items);
     }
 
     /**
