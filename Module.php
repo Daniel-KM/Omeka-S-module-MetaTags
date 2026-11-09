@@ -791,6 +791,12 @@ class Module extends AbstractModule
             }
         }
 
+        // The module ResourceMeta outputs the values of Dublin Core, so skip
+        // them to avoid duplicates.
+        if ($this->isModuleActive('ResourceMeta')) {
+            return;
+        }
+
         // The values of Dublin Core are output with the prefix "DCTERMS".
         $view->headLink(['rel' => 'schema.DCTERMS', 'href' => 'http://purl.org/dc/terms/']);
         foreach ($item->values() as $term => $propertyData) {
